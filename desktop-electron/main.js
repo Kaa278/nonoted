@@ -1,6 +1,12 @@
 const { app, BrowserWindow, shell } = require('electron');
 const path = require('path');
 
+// Fix for Linux taskbar icon/grouping
+if (process.platform === 'linux') {
+    app.setName('Nonoted');
+    app.setDesktopName('nonoted.desktop');
+}
+
 function createWindow() {
     const win = new BrowserWindow({
         width: 1280,
@@ -8,17 +14,17 @@ function createWindow() {
         minWidth: 900,
         minHeight: 600,
         title: 'Nonoted',
+        icon: path.join(__dirname, '../www/icon.png'), // Set icon for window
         backgroundColor: '#0f172a',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            webSecurity: false, // allow Firebase from file://
         },
         show: false,
     });
 
-    // Load the app directly from file
-    win.loadFile(path.join(__dirname, '../www/index.html'));
+    // Load from Vercel deployment
+    win.loadURL('https://nonoted.vercel.app/');
 
     // Show window once ready (avoids white flash)
     win.once('ready-to-show', () => {
@@ -26,7 +32,21 @@ function createWindow() {
     });
 
     // Open external links in browser, not in Electron
+    // Customize window handling
     win.webContents.setWindowOpenHandler(({ url }) => {
+        // If it's an internal URL or about:blank (for popups), allow it
+        if (url.startsWith('https://nonoted.vercel.app') || url === 'about:blank') {
+            return {
+                action: 'allow',
+                overrideBrowserWindowOptions: {
+                    autoHideMenuBar: true,
+                    title: 'Nonoted Popup',
+                    icon: path.join(__dirname, '../www/icon.png')
+                }
+            };
+        }
+
+        // Otherwise open in external browser
         shell.openExternal(url);
         return { action: 'deny' };
     });
