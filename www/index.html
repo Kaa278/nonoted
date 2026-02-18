@@ -718,6 +718,23 @@
             }, 200);
         }
 
+        // Close View Modal on Outside Click
+        els.viewModal.addEventListener('click', (e) => {
+            if (e.target === els.viewModal) {
+                closeView();
+            }
+        });
+
+        // Close Add Modal
+        els.btnCloseAdd.addEventListener("click", () => {
+            els.addModalContent.classList.remove("scale-100", "opacity-100");
+            els.addModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.addModal.classList.remove("flex");
+                els.addModal.classList.add("hidden");
+            }, 200);
+        });
+
         async function addNote() {
             const text = els.noteText.value.trim();
             const title = els.noteTitle?.value.trim() || "";
