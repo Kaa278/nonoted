@@ -2004,6 +2004,9 @@
                 if (window.updateAuthUI) {
                     window.updateAuthUI(user);
                 }
+
+                // Load user's notes
+                await loadNotes();
             } else {
                 // User is signed out
                 currentUserId = "default_user";
