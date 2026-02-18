@@ -310,10 +310,18 @@
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 mb-6">
+            <div class="flex items-center gap-2 mb-4">
                 <span id="viewTag"
                     class="hidden px-2 py-1 rounded text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 uppercase tracking-wide"></span>
                 <span id="viewDate" class="text-xs text-slate-400"></span>
+            </div>
+
+            <!-- In-Note Search -->
+            <div class="relative mb-4 group">
+                <input id="viewSearchInput" type="text" placeholder="Temukan di catatan ini..."
+                    class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-transparent focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 dark:focus:border-blue-500 transition-all text-sm outline-none placeholder:text-slate-400/70">
+                <i data-lucide="search"
+                    class="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
             </div>
 
             <div id="viewText"
@@ -542,6 +550,7 @@
             viewText: $("viewText"),
             viewTag: $("viewTag"),
             viewDate: $("viewDate"),
+            viewSearchInput: $("viewSearchInput"),
             btnViewEdit: $("btnViewEdit"),
             // Nav
             navDrafts: $("nav-drafts"),
@@ -767,19 +776,23 @@
             return escapeHtml(text).replace(re, '<mark class="bg-yellow-200 dark:bg-yellow-600/50 text-slate-900 dark:text-slate-100 rounded px-0.5">$1</mark>');
         }
 
+        let currentViewId = null;
+
         function openView(id) {
             const n = notes.find(x => x.id === id);
             if (!n) return;
 
+            currentViewId = id;
             const q = lastSearchQuery;
 
             els.viewTitle.textContent = n.title || "(Tanpa Judul)";
-            // Highlight search term in body text
-            if (q) {
-                els.viewText.innerHTML = highlightText(n.text, q).replace(/\n/g, '<br>');
-            } else {
-                els.viewText.textContent = n.text;
-            }
+
+            // Set view search input value if opening from main search
+            els.viewSearchInput.value = q || '';
+
+            // Initial Highlight
+            renderViewText(n.text, q);
+
             els.viewDate.textContent = formatDate(n.createdAt);
 
             if (n.tag) {
@@ -795,22 +808,39 @@
                 openEdit(id);
             };
 
+            // View Search Listener
+            els.viewSearchInput.oninput = (e) => {
+                const searchVal = e.target.value.trim();
+                renderViewText(n.text, searchVal);
+            };
+
             els.viewModal.classList.remove("hidden");
             els.viewModal.classList.add("flex");
             setTimeout(() => {
                 els.viewModalContent.classList.remove("scale-95", "opacity-0");
                 els.viewModalContent.classList.add("scale-100", "opacity-100");
 
+                // Initialize icons in modal (for the new search icon)
+                lucide.createIcons();
+
                 // Scroll to first highlighted match if coming from search
-                if (lastSearchQuery) {
+                if (q) {
                     setTimeout(() => {
-                        const firstMark = els.viewModalContent.querySelector('mark');
+                        const firstMark = els.viewText.querySelector('mark');
                         if (firstMark) {
                             firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }, 150);
                 }
             }, 10);
+        }
+
+        function renderViewText(text, query) {
+            if (query) {
+                els.viewText.innerHTML = highlightText(text, query).replace(/\n/g, '<br>');
+            } else {
+                els.viewText.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+            }
         }
 
         function closeView() {
