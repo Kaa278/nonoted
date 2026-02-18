@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nototed</string>
+    <string name="title_activity_main">Nototed</string>
+    <string name="package_name">com.kaa.nototed</string>
+    <string name="custom_url_scheme">com.kaa.nototed</string>
+</resources>

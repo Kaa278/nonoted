@@ -1,0 +1,41 @@
+{
+    "name": "nonoted",
+    "version": "1.0.0",
+    "description": "Nonoted - Aplikasi Catatan Desktop",
+    "main": "main.js",
+    "author": "Kaa",
+    "license": "MIT",
+    "scripts": {
+        "start": "electron .",
+        "build:linux": "electron-builder --linux",
+        "build:win": "electron-builder --win",
+        "build:mac": "electron-builder --mac"
+    },
+    "build": {
+        "appId": "com.kaa.nonoted",
+        "productName": "Nonoted",
+        "directories": {
+            "output": "../desktop-dist"
+        },
+        "files": [
+            "main.js",
+            "../www/**/*"
+        ],
+        "linux": {
+            "target": [
+                "AppImage"
+            ],
+            "category": "Utility"
+        },
+        "win": {
+            "target": "nsis"
+        },
+        "mac": {
+            "target": "dmg"
+        }
+    },
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^24.0.0"
+    }
+}

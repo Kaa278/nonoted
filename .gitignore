@@ -1,0 +1,10 @@
+node_modules/
+desktop-build/
+desktop-dist/
+android/app/build/
+android/.gradle/
+android/build/
+.gradle/
+*.AppImage
+*.apk
+.DS_Store
