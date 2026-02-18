@@ -1,9 +1,17 @@
 node_modules/
 desktop-build/
 desktop-dist/
+
+# Android build outputs (besar, tidak perlu di repo)
 android/app/build/
 android/.gradle/
 android/build/
+android/.idea/
+android/app/.cxx/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+
+# Misc
 .gradle/
 *.AppImage
 *.apk
