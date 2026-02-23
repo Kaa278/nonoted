@@ -140,6 +140,11 @@
                         <i data-lucide="clipboard-pen" class="h-4 w-4"></i>
                         Drafts
                     </button>
+                    <button onclick="filterNotes('tasks')" id="nav-tasks"
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors mt-4">
+                        <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                        Tasks
+                    </button>
                 </nav>
 
                 <!-- Tags -->
@@ -239,8 +244,54 @@
 
                 <!-- Grid -->
                 <div id="notesGrid"
-                    class="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
+                    class="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20 transition-all duration-300">
                     <!-- Cards go here -->
+                </div>
+
+                <!-- Task List View -->
+                <div id="tasksView" class="hidden max-w-3xl mx-auto pb-20 space-y-6 transition-all duration-300">
+                    <!-- Task Header -->
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Tasks</h2>
+                        <button onclick="openAddTaskModal()"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            Add Task
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div
+                        class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Progress</span>
+                            <span id="taskProgressText" class="text-sm font-bold text-slate-800 dark:text-slate-200">0 /
+                                0 completed</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                            <div id="taskProgressBar"
+                                class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div
+                        class="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto no-scrollbar">
+                        <button onclick="setTaskFilter('all')" id="task-filter-all"
+                            class="px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap border-blue-600 text-blue-600 dark:text-blue-400">All</button>
+                        <button onclick="setTaskFilter('today')" id="task-filter-today"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors whitespace-nowrap">Today</button>
+                        <button onclick="setTaskFilter('upcoming')" id="task-filter-upcoming"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors whitespace-nowrap">Upcoming</button>
+                        <button onclick="setTaskFilter('completed')" id="task-filter-completed"
+                            class="px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors whitespace-nowrap">Completed</button>
+                    </div>
+
+                    <!-- Task List Container -->
+                    <div id="taskList" class="space-y-3">
+                        <!-- Task cards will be rendered here -->
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -341,6 +392,58 @@
     </div>
     </main>
 
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+        <div id="addTaskModalContent"
+            class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 transform scale-95 opacity-0 transition-all duration-200">
+            <h3 class="text-xl font-bold mb-4 text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <i data-lucide="check-square" class="h-6 w-6 text-blue-600"></i>
+                Tugas Baru
+            </h3>
+
+            <div class="space-y-4">
+                <input id="taskTitle" type="text" placeholder="Apa yang harus dilakukan?"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-lg text-slate-800 dark:text-slate-100">
+
+                <div class="relative">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Tenggat
+                        Waktu</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="calendar" class="h-4 w-4 text-slate-400"></i>
+                        </div>
+                        <input id="taskDate" type="datetime-local"
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-slate-600 dark:text-slate-300">
+                    </div>
+                    <div class="relative w-full">
+                        <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Reminder
+                            (Opsional)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="bell" class="h-4 w-4 text-slate-400"></i>
+                            </div>
+                            <input id="taskReminder" type="datetime-local"
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-slate-600 dark:text-slate-300">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-center pt-4">
+                    <div class="flex-1"></div>
+                    <button id="btnCloseAddTask"
+                        class="px-4 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors">
+                        Batal
+                    </button>
+                    <button id="btnSaveTask"
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-lg shadow-blue-500/30">
+                        Simpan Tugas
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Toast -->
@@ -505,9 +608,12 @@
     <script>
         // ============ State ============
         const STORAGE_KEY = "modern_notes_v2";
+        const TASKS_KEY = "modern_tasks_v1"; // Separate storage key for tasks logic (if local)
         const THEME_KEY = "theme_preference";
         let notes = [];
+        let tasks = [];
         let currentFilter = 'all';
+        let currentMode = 'notes'; // 'notes' or 'tasks'
 
         const $ = (id) => document.getElementById(id);
         const els = {
@@ -517,6 +623,7 @@
             pinNew: $("pinNew"),
             btnAdd: $("btnAdd"),
             notesGrid: $("notesGrid"),
+            tasksView: $("tasksView"), // New
             emptyState: $("emptyState"),
             countNotes: $("countNotes"),
             searchInput: $("searchInput"),
@@ -537,11 +644,23 @@
             tagsList: $("tagsList"),
             navAll: $("nav-all"),
             navPinned: $("nav-pinned"),
+            navTasks: $("nav-tasks"),
             // Add Modal
             btnOpenAdd: $("btnOpenAdd"),
             addModal: $("addModal"),
             addModalContent: $("addModalContent"),
             btnCloseAdd: $("btnCloseAdd"),
+            // Add Task Modal
+            addTaskModal: $("addTaskModal"),
+            addTaskModalContent: $("addTaskModalContent"),
+            taskTitle: $("taskTitle"),
+            taskDate: $("taskDate"),
+            taskReminder: $("taskReminder"),
+            btnSaveTask: $("btnSaveTask"),
+            btnCloseAddTask: $("btnCloseAddTask"),
+            taskProgressText: $("taskProgressText"),
+            taskProgressBar: $("taskProgressBar"),
+            taskList: $("taskList"),
             // View Modal
             viewModal: $("viewModal"),
             viewModalContent: $("viewModalContent"),
@@ -656,20 +775,154 @@
 
                 // Load from Firestore
                 notes = await window.loadNotesFromFirestore();
+                // Load tasks (mock for now if no firestore backend yet, or reuse similar structure)
+                // For this implementation we'll use LocalStorage or extending Firestore if available.
+                // Assuming we use a similar pattern or just local storage for simplicity in this turn
+                // unless user specified database. User said "menu task aja", implying visual separation.
+                // Let's use LocalStorage for tasks to ensure it works immediately without DB schema changes.
+                const storedTasks = localStorage.getItem(TASKS_KEY);
+                if (storedTasks) tasks = JSON.parse(storedTasks);
+
                 updateTags();
                 render();
             } catch (error) {
                 console.error("Error loading notes:", error);
                 notes = [];
+                tasks = [];
                 updateTags();
                 render();
             }
         }
 
-        // Helper to save and re-render (no longer uses localStorage)
+        // Helper to save and re-render
         async function saveNotes() {
             updateTags();
             render();
+        }
+
+        function saveTasks() {
+            localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+            render();
+        }
+
+        // ============ Task Modal Logic ============
+        function openAddTaskModal() {
+            els.addTaskModal.classList.remove("hidden");
+            els.addTaskModal.classList.add("flex");
+            setTimeout(() => {
+                els.addTaskModalContent.classList.remove("scale-95", "opacity-0");
+                els.addTaskModalContent.classList.add("scale-100", "opacity-100");
+                if (els.taskTitle) els.taskTitle.focus();
+            }, 10);
+        }
+
+        function closeAddTaskModal() {
+            els.addTaskModalContent.classList.remove("scale-100", "opacity-100");
+            els.addTaskModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.addTaskModal.classList.add("hidden");
+                els.addTaskModal.classList.remove("flex");
+                // Reset
+                els.taskTitle.value = "";
+                els.taskDate.value = "";
+            }, 200);
+        }
+
+        els.btnCloseAddTask.addEventListener("click", closeAddTaskModal);
+
+        els.btnSaveTask.addEventListener("click", async () => {
+            const title = els.taskTitle.value.trim();
+            const dateStr = els.taskDate.value;
+            const reminderStr = els.taskReminder.value;
+
+            if (!title || !dateStr) return showToast("Judul dan Tenggat Waktu harus diisi");
+
+            const newTask = {
+                id: uid(),
+                title,
+                dueDate: new Date(dateStr).getTime(),
+                reminder: reminderStr ? new Date(reminderStr).getTime() : null,
+                completed: false,
+                createdAt: Date.now()
+            };
+
+            tasks.unshift(newTask);
+            saveTasks();
+
+            // Notification (client-side implementation handled elsewhere, but keeping schedule if supported)
+            if (newTask.reminder) {
+                await scheduleTaskNotification(newTask);
+            }
+
+            // Sync with Firebase (will be implemented next)
+            if (window.saveTaskToFirestore) {
+                await window.saveTaskToFirestore(newTask);
+            }
+
+            showToast("Tugas disimpan");
+            closeAddTaskModal();
+        });
+
+        // ============ Task Notification Logic ============
+        async function scheduleTaskNotification(task) {
+            if (!task.dueDate) return;
+            try {
+                if (window.LocalNotifications) {
+                    const permStatus = await window.LocalNotifications.requestPermissions();
+                    if (permStatus.display === 'granted') {
+                        if (task.dueDate > Date.now()) {
+                            const notifId = Math.abs(task.id.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+                            await window.LocalNotifications.schedule({
+                                notifications: [{
+                                    title: "Pengingat Tugas",
+                                    body: task.title,
+                                    id: notifId,
+                                    schedule: { at: new Date(task.dueDate) },
+                                    sound: null,
+                                    attachments: null,
+                                    actionTypeId: "",
+                                    extra: null
+                                }]
+                            });
+                            console.log("Task notification scheduled");
+                        }
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function cancelTaskNotification(taskId) {
+            try {
+                if (window.LocalNotifications) {
+                    const notifId = Math.abs(taskId.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0));
+                    await window.LocalNotifications.cancel({ notifications: [{ id: notifId }] });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ============ Task Actions ============
+        async function toggleTask(id) {
+            const t = tasks.find(x => x.id === id);
+            if (t) {
+                t.completed = !t.completed;
+                saveTasks();
+
+                // If completed, maybe cancel notification?
+                if (t.completed) {
+                    await cancelTaskNotification(id);
+                } else if (t.dueDate && t.dueDate > Date.now()) {
+                    // Reschedule if un-completed and still valid
+                    await scheduleTaskNotification(t);
+                }
+            }
+        }
+
+        async function deleteTask(id) {
+            if (!confirm("Hapus tugas ini?")) return;
+            await cancelTaskNotification(id);
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            showToast("Tugas dihapus");
         }
 
         function openAddModal() {
@@ -682,6 +935,15 @@
                 if (els.noteTitle) els.noteTitle.focus();
             }, 10);
         }
+
+        // Floating Button Logic
+        els.btnOpenAdd.addEventListener("click", () => {
+            if (currentMode === 'tasks') {
+                openAddTaskModal();
+            } else {
+                openAddModal();
+            }
+        });
 
         function closeAddModal() {
             // Check if there is content
@@ -1227,7 +1489,7 @@
                     els.profileDropdown.classList.toggle("hidden");
                 };
 
-                // Sidebar Profile button also opens dropdown or goes to profile page? 
+                // Sidebar Profile button also opens dropdown or goes to profile page?
                 // For now, let's make it just show info or maybe nothing specific
                 els.btnSidebarProfile.onclick = () => {
                     // Optional: Could open a profile settings modal in future
@@ -1274,14 +1536,14 @@
             els.logoutModal.classList.add("flex");
             console.log("Modal classes after update:", els.logoutModal.className);
 
-            // Re-initialize Lucide icons for the modal
-            lucide.createIcons();
-
             // Force immediate visibility for debugging
             if (els.logoutModalContent) {
                 els.logoutModalContent.style.opacity = "1";
                 els.logoutModalContent.style.transform = "scale(1)";
             }
+
+            // Update icons since we re-rendered
+            lucide.createIcons();
 
             setTimeout(() => {
                 if (els.logoutModalContent) {
@@ -1479,6 +1741,18 @@
 
         function filterNotes(type) {
             currentFilter = type;
+
+            // Mode Switching
+            if (type === 'tasks') {
+                currentMode = 'tasks';
+                els.notesGrid.classList.add("hidden");
+                els.tasksView.classList.remove("hidden");
+            } else {
+                currentMode = 'notes';
+                els.notesGrid.classList.remove("hidden");
+                els.tasksView.classList.add("hidden");
+            }
+
             render();
 
             const btnClass = "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors";
@@ -1559,8 +1833,138 @@
             a.click();
         }
 
+        let currentTaskFilter = 'all'; // all, today, upcoming, completed
+
+        function setTaskFilter(filter) {
+            currentTaskFilter = filter;
+
+            // Update active tab styles
+            const tabs = ['all', 'today', 'upcoming', 'completed'];
+            tabs.forEach(t => {
+                const el = $(`task-filter-${t}`);
+                if (t === filter) {
+                    el.className = "px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap border-blue-600 text-blue-600 dark:text-blue-400";
+                } else {
+                    el.className = "px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors whitespace-nowrap";
+                }
+            });
+
+            renderTasks();
+        }
+
+        function isToday(timestamp) {
+            const today = new Date();
+            const date = new Date(timestamp);
+            return date.getDate() === today.getDate() &&
+                date.getMonth() === today.getMonth() &&
+                date.getFullYear() === today.getFullYear();
+        }
+
+        function isUpcoming(timestamp) {
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+            return timestamp > today.getTime();
+        }
+
+        function renderTasks() {
+            // Calculate Progress
+            const total = tasks.length;
+            const completedCount = tasks.filter(t => t.completed).length;
+            const progressPercent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+
+            els.taskProgressText.textContent = `${completedCount} / ${total} completed`;
+            els.taskProgressBar.style.width = `${progressPercent}%`;
+
+            // Filter Tasks
+            let filteredTasks = tasks;
+            if (currentTaskFilter === 'today') {
+                filteredTasks = tasks.filter(t => t.dueDate && isToday(t.dueDate) && !t.completed);
+            } else if (currentTaskFilter === 'upcoming') {
+                filteredTasks = tasks.filter(t => t.dueDate && isUpcoming(t.dueDate) && !t.completed);
+            } else if (currentTaskFilter === 'completed') {
+                filteredTasks = tasks.filter(t => t.completed);
+            }
+
+            // Sort: Incomplete first, then by nearest dueDate 
+            filteredTasks.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                if (!a.dueDate && !b.dueDate) return b.createdAt - a.createdAt;
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return a.dueDate - b.dueDate;
+            });
+
+            // Render Empty State if no tasks
+            if (filteredTasks.length === 0) {
+                els.taskList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                        <i data-lucide="check-circle" class="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2"></i>
+                        <p class="text-sm">Tidak ada tugas dalam kategori ini.</p>
+                    </div>`;
+                lucide.createIcons({ nodes: els.taskList.querySelectorAll('[data-lucide]') });
+                return;
+            }
+
+            els.taskList.innerHTML = filteredTasks.map(t => {
+                const dateText = t.dueDate ?
+                    new Date(t.dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) :
+                    "No Date";
+                const isOverdue = t.dueDate && t.dueDate < Date.now() && !t.completed && !isToday(t.dueDate);
+
+                const dateColor = t.completed ? "text-slate-400 dark:text-slate-500" :
+                    isOverdue ? "text-rose-500 dark:text-rose-400" :
+                        "text-slate-500 dark:text-slate-400";
+
+                const textStyle = t.completed ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-800 dark:text-slate-100 font-medium";
+                const wrapperStyle = t.completed ? "opacity-60 bg-slate-50 dark:bg-slate-900" : "bg-white dark:bg-slate-900";
+
+                return `
+                    <div class="flex items-center gap-4 p-4 ${wrapperStyle} border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-sm">
+                        
+                        <div class="flex items-center justify-center pt-0.5">
+                            <label class="relative flex items-center p-1 rounded-full cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="event.stopPropagation(); toggleTask('${t.id}')"
+                                    class="peer relative appearance-none w-5 h-5 border-2 border-slate-300 dark:border-slate-600 rounded cursor-pointer transition-all checked:border-blue-600 checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900">
+                                <div class="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <p class="${textStyle} text-base break-words truncate">${escapeHtml(t.title)}</p>
+                            <div class="flex items-center gap-3 mt-1 text-xs">
+                                <div class="flex items-center gap-1 ${dateColor}">
+                                    <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                                    <span>${dateText}</span>
+                                </div>
+                                ${t.reminder ? `
+                                <div class="flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                                    <i data-lucide="bell" class="h-3.5 w-3.5 ${t.completed ? 'opacity-50' : ''}"></i>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        <button onclick="event.stopPropagation(); deleteTask('${t.id}')" class="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 sm:opacity-100">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons({ nodes: els.taskList.querySelectorAll('[data-lucide]') });
+        }
+
         // ============ Rendering ============
         function render() {
+            // Render Tasks if in task mode
+            if (currentMode === 'tasks') {
+                renderTasks();
+                return;
+            }
+
             const arr = getFiltered();
             els.countNotes.textContent = arr.length;
             els.emptyState.classList.toggle("hidden", arr.length > 0);
@@ -1921,6 +2325,61 @@
             }
         };
 
+        // ============ Firebase Tasks Functions ============
+        window.loadTasksFromFirestore = async function () {
+            try {
+                const q = query(
+                    collection(db, "tasks"),
+                    where("userId", "==", currentUserId),
+                    orderBy("createdAt", "desc")
+                );
+
+                const snapshot = await getDocs(q);
+                return snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            } catch (error) {
+                console.error("Error loading tasks:", error);
+                // Return empty array if index needs to be built or other error
+                return [];
+            }
+        };
+
+        window.saveTaskToFirestore = async function (task) {
+            try {
+                // If the id is a generated local id, we should let Firestore generate it or use it as doc ID
+                const isLocalId = !task.id.includes('-'); // Rough check, adjust if needed
+
+                const taskData = {
+                    userId: currentUserId,
+                    title: task.title,
+                    completed: task.completed || false,
+                    dueDate: task.dueDate || null,
+                    reminder: task.reminder || null,
+                    createdAt: task.createdAt || Date.now()
+                };
+
+                // Use the id we set, but handle new documents
+                const docRef = doc(db, "tasks", task.id);
+                // setDoc with merge: true creates or updates
+                await setDoc(docRef, taskData, { merge: true });
+                return task.id;
+            } catch (error) {
+                console.error("Error saving task:", error);
+                throw error;
+            }
+        };
+
+        window.deleteTaskFromFirestore = async function (taskId) {
+            try {
+                await deleteDoc(doc(db, "tasks", taskId));
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                throw error;
+            }
+        };
+
         // Delete all notes for current user
         window.clearAllNotesFromFirestore = async function () {
             try {
@@ -1932,150 +2391,198 @@
                     batch.delete(doc.ref);
                 });
 
-                await batch.commit();
-            } catch (error) {
-                console.error("Error clearing all notes:", error);
-                throw error;
-            }
-        };
+                // Delete all notes for current user
+                window.clearAllNotesFromFirestore = async function () {
+                    try {
+                        const q = query(collection(db, "notes"), where("userId", "==", currentUserId));
+                        const snapshot = await getDocs(q);
 
-        // One-time migration from localStorage to Firestore
-        window.migrateLocalToFirebase = async function () {
-            try {
-                const STORAGE_KEY = "modern_notes_v2";
-                const raw = localStorage.getItem(STORAGE_KEY);
+                        const batch = writeBatch(db);
+                        snapshot.docs.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
 
-                if (!raw) {
-                    console.log("No localStorage data to migrate");
-                    return 0;
-                }
+                        await batch.commit();
 
-                const oldNotes = JSON.parse(raw);
-                let count = 0;
+                        // Clear Tasks as well
+                        const qTasks = query(collection(db, "tasks"), where("userId", "==", currentUserId));
+                        const snapTasks = await getDocs(qTasks);
+                        const batchTasks = writeBatch(db);
+                        snapTasks.docs.forEach(doc => {
+                            batchTasks.delete(doc.ref);
+                        });
+                        await batchTasks.commit();
 
-                for (const note of oldNotes) {
-                    const noteData = {
-                        userId: currentUserId,
-                        title: note.title || "",
-                        text: note.text || "",
-                        tag: note.tag || "",
-                        pinned: note.pinned || false,
-                        isDraft: note.isDraft || false,
-                        createdAt: note.createdAt || Date.now(),
-                        updatedAt: note.updatedAt || Date.now()
-                    };
+                    } catch (error) {
+                        console.error("Error clearing all notes:", error);
+                        throw error;
+                    }
+                };
 
-                    await addDoc(collection(db, "notes"), noteData);
-                    count++;
-                }
+                // One-time migration from localStorage to Firestore
+                window.migrateLocalToFirebase = async function () {
+                    try {
+                        const STORAGE_KEY = "modern_notes_v2";
+                        const raw = localStorage.getItem(STORAGE_KEY);
 
-                // Clear localStorage after successful migration
-                localStorage.removeItem(STORAGE_KEY);
-                console.log(`Migration complete: ${count} notes migrated to Firestore`);
-                return count;
-            } catch (error) {
-                console.error("Error during migration:", error);
-                throw error;
-            }
-        };
+                        if (!raw) {
+                            console.log("No localStorage data to migrate");
+                            return 0;
+                        }
 
-        // Migrate guest Firestore notes to logged-in user account
-        window.migrateGuestNotesToAccount = async function () {
-            if (!currentUserId || currentUserId === "default_user") return 0;
-            try {
-                const guestQ = query(collection(db, "notes"), where("userId", "==", "default_user"));
-                const guestSnap = await getDocs(guestQ);
-                if (guestSnap.empty) return 0;
+                        const oldNotes = JSON.parse(raw);
+                        let count = 0;
 
-                let count = 0;
-                for (const guestDoc of guestSnap.docs) {
-                    await updateDoc(doc(db, "notes", guestDoc.id), { userId: currentUserId });
-                    count++;
-                }
-                console.log(`Migrated ${count} guest notes to account`);
-                if (count > 0) showToast(`${count} catatan guest berhasil disimpan ke akun`);
-                return count;
-            } catch (error) {
-                console.error("Guest migration error:", error);
-                return 0;
-            }
-        };
+                        for (const note of oldNotes) {
+                            const noteData = {
+                                userId: currentUserId,
+                                title: note.title || "",
+                                text: note.text || "",
+                                tag: note.tag || "",
+                                pinned: note.pinned || false,
+                                isDraft: note.isDraft || false,
+                                createdAt: note.createdAt || Date.now(),
+                                updatedAt: note.updatedAt || Date.now()
+                            };
 
-        // ========== Firebase Auth Functions ==========
+                            await addDoc(collection(db, "notes"), noteData);
+                            count++;
+                        }
 
-        // Register new user
-        window.registerUser = async function (name, email, password) {
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                // Update profile with display name
-                await updateProfile(userCredential.user, {
-                    displayName: name
+                        // Clear localStorage after successful migration
+                        localStorage.removeItem(STORAGE_KEY);
+                        console.log(`Migration complete: ${count} notes migrated to Firestore`);
+                        return count;
+                    } catch (error) {
+                        console.error("Error during migration:", error);
+                        throw error;
+                    }
+                };
+
+                // Migrate guest Firestore notes to logged-in user account
+                window.migrateGuestNotesToAccount = async function () {
+                    if (!currentUserId || currentUserId === "default_user") return 0;
+                    try {
+                        const guestQ = query(collection(db, "notes"), where("userId", "==", "default_user"));
+                        const guestSnap = await getDocs(guestQ);
+                        if (guestSnap.empty) return 0;
+
+                        let count = 0;
+                        for (const guestDoc of guestSnap.docs) {
+                            await updateDoc(doc(db, "notes", guestDoc.id), { userId: currentUserId });
+                            count++;
+                        }
+                        console.log(`Migrated ${count} guest notes to account`);
+                        if (count > 0) showToast(`${count} catatan guest berhasil disimpan ke akun`);
+                        return count;
+                    } catch (error) {
+                        console.error("Guest migration error:", error);
+                        return 0;
+                    }
+                };
+
+                // ========== Firebase Auth Functions ==========
+
+                // Register new user
+                window.registerUser = async function (name, email, password) {
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        // Update profile with display name
+                        await updateProfile(userCredential.user, {
+                            displayName: name
+                        });
+                        return { success: true, user: userCredential.user };
+                    } catch (error) {
+                        console.error("Registration error:", error);
+                        return { success: false, error: error.message };
+                    }
+                };
+
+                // Login existing user
+                window.loginUser = async function (email, password) {
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        return { success: true, user: userCredential.user };
+                    } catch (error) {
+                        console.error("Login error:", error);
+                        return { success: false, error: error.message };
+                    }
+                };
+
+                // Logout current user
+                window.logoutUser = async function () {
+                    try {
+                        await signOut(auth);
+                        return { success: true };
+                    } catch (error) {
+                        console.error("Logout error:", error);
+                        return { success: false, error: error.message };
+                    }
+                };
+
+                // Auth state listener
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User is signed in
+                        currentUserId = user.uid;
+                        console.log("User authenticated:", user.email);
+
+                        // Update UI
+                        if (window.updateAuthUI) {
+                            window.updateAuthUI(user);
+                        }
+
+                        // Load user's notes and tasks
+                        await loadNotes();
+                        tasks = await window.loadTasksFromFirestore();
+                        saveTasks(); // updates local state and re-renders
+                    } else {
+                        // User is signed out
+                        currentUserId = "default_user";
+                        console.log("User not authenticated, using guest mode");
+
+                        // Clear notes AND tags so account data doesn't show after logout
+                        notes = [];
+                        tasks = [];
+                        currentFilter = 'all';
+                        updateTags();
+                        render();
+
+                        // Update UI
+                        if (window.updateAuthUI) {
+                            window.updateAuthUI(null);
+                        }
+                    }
                 });
-                return { success: true, user: userCredential.user };
+
+                // Expose currentUserId getter
+                window.getCurrentUserId = () => currentUserId;
+
+                console.log("Firebase initialized successfully");
+
             } catch (error) {
-                console.error("Registration error:", error);
-                return { success: false, error: error.message };
+                console.error("Firebase initialization failed:", error);
             }
-        };
+        }) ();
 
-        // Login existing user
-        window.loginUser = async function (email, password) {
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                return { success: true, user: userCredential.user };
-            } catch (error) {
-                console.error("Login error:", error);
-                return { success: false, error: error.message };
-            }
-        };
+        // ============ Background Reminder Check ============
+        setInterval(() => {
+            if (!tasks || tasks.length === 0) return;
+            const now = Date.now();
 
-        // Logout current user
-        window.logoutUser = async function () {
-            try {
-                await signOut(auth);
-                return { success: true };
-            } catch (error) {
-                console.error("Logout error:", error);
-                return { success: false, error: error.message };
-            }
-        };
-
-        // Auth state listener
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                // User is signed in
-                currentUserId = user.uid;
-                console.log("User authenticated:", user.email);
-
-                // Update UI
-                if (window.updateAuthUI) {
-                    window.updateAuthUI(user);
+            tasks.forEach(t => {
+                if (!t.completed && t.reminder && t.reminder <= now && !t.reminderShown) {
+                    showToast(`REMINDER: ${t.title}`);
+                    t.reminderShown = true;
+                    // Auto-hide reminder logic (local only to not spam DB ideally, but optional)
+                    // If we synced it, we would update Firestore here:
+                    if (window.saveTaskToFirestore) {
+                        window.saveTaskToFirestore(t);
+                    }
                 }
+            });
+        }, 10000); // Check every 10 seconds
 
-                // Load user's notes
-                await loadNotes();
-            } else {
-                // User is signed out
-                currentUserId = "default_user";
-                console.log("User not authenticated, using guest mode");
-
-                // Clear notes AND tags so account data doesn't show after logout
-                notes = [];
-                currentFilter = 'all';
-                updateTags();
-                render();
-
-                // Update UI
-                if (window.updateAuthUI) {
-                    window.updateAuthUI(null);
-                }
-            }
-        });
-
-        // Expose currentUserId getter
-        window.getCurrentUserId = () => currentUserId;
-
-        console.log("Firebase initialized successfully");
     </script>
 </body>
 
