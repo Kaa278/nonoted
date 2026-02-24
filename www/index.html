@@ -1459,7 +1459,47 @@
         });
       }
 
-      function openAddTaskModal() {
+      let editingTaskId = null;
+      function openAddTaskModal(taskId = null) {
+        editingTaskId = taskId;
+
+        const titleEl = els.addTaskModalContent.querySelector("h3");
+        if (titleEl)
+          titleEl.textContent = taskId ? "Edit Tugas" : "Tambah Tugas";
+
+        if (taskId && typeof taskId === "string") {
+          const t = tasks.find((x) => x.id === taskId);
+          if (t) {
+            els.taskTitle.value = t.title;
+            if (t.dueDate) {
+              taskDueDate = t.dueDate;
+              const dateObj = new Date(t.dueDate);
+              selectedTaskDate = dateObj;
+              setTumblerValue(hourTumbler, dateObj.getHours());
+              setTumblerValue(minuteTumbler, dateObj.getMinutes());
+              els.taskDateLabel.textContent = dateObj.toLocaleString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+            if (t.reminder) {
+              taskReminderTime = t.reminder;
+              els.taskReminderLabel.textContent = new Date(
+                t.reminder,
+              ).toLocaleString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+          }
+        }
+
         els.addTaskModal.classList.remove("hidden");
         els.addTaskModal.classList.add("flex");
         setTimeout(() => {
@@ -1479,6 +1519,7 @@
           els.taskTitle.value = "";
           taskDueDate = null;
           taskReminderTime = null;
+          editingTaskId = null;
           els.taskDateLabel.textContent = "Pilih Waktu...";
           els.taskReminderLabel.textContent = "Belum Diatur";
 
@@ -1497,13 +1538,22 @@
         if (!title || !taskDueDate)
           return showToast("Judul dan Tenggat Waktu harus diisi");
 
-        const newTask = {
-          title,
-          dueDate: taskDueDate,
-          reminder: taskReminderTime,
-          completed: false,
-          createdAt: Date.now(),
-        };
+        let newTask;
+        if (editingTaskId) {
+          newTask = tasks.find((x) => x.id === editingTaskId);
+          if (!newTask) return closeAddTaskModal();
+          newTask.title = title;
+          newTask.dueDate = taskDueDate;
+          newTask.reminder = taskReminderTime;
+        } else {
+          newTask = {
+            title,
+            dueDate: taskDueDate,
+            reminder: taskReminderTime,
+            completed: false,
+            createdAt: Date.now(),
+          };
+        }
 
         try {
           // Sync to Firestore first to get the real ID
@@ -1511,10 +1561,12 @@
             const taskId = await window.saveTaskToFirestore(newTask);
             newTask.id = taskId;
           } else {
-            newTask.id = uid(); // fallback
+            if (!newTask.id) newTask.id = uid(); // fallback
           }
 
-          tasks.unshift(newTask);
+          if (!editingTaskId) {
+            tasks.unshift(newTask);
+          }
           saveTasks();
 
           // Update UI immediately
@@ -2772,7 +2824,7 @@
               : "bg-white dark:bg-slate-900";
 
             return `
-                    <div class="flex items-center gap-4 p-4 ${wrapperStyle} border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-sm">
+                    <div onclick="openAddTaskModal('${t.id}')" class="flex items-center gap-4 p-4 ${wrapperStyle} border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200 hover:shadow-sm cursor-pointer">
                         
                         <div class="flex items-center justify-center pt-0.5">
                             <label class="relative flex items-center p-1 rounded-full cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
@@ -3040,7 +3092,6 @@
         els.btnSaveEdit.addEventListener("click", saveEdit);
 
         // Add Modal Events
-        els.btnOpenAdd.addEventListener("click", openAddModal);
         els.btnCloseAdd.addEventListener("click", closeAddModal);
 
         // Mobile Sidebar Events
