@@ -1580,9 +1580,10 @@
       async function scheduleTaskNotification(task) {
         if (!task.dueDate) return;
         try {
-          if (window.LocalNotifications) {
-            const permStatus =
-              await window.LocalNotifications.requestPermissions();
+          if (window.Capacitor && window.Capacitor.Plugins.LocalNotifications) {
+            const LocalNotifications =
+              window.Capacitor.Plugins.LocalNotifications;
+            const permStatus = await LocalNotifications.requestPermissions();
             if (permStatus.display === "granted") {
               if (task.dueDate > Date.now()) {
                 const notifId = Math.abs(
@@ -1591,7 +1592,7 @@
                     return a & a;
                   }, 0),
                 );
-                await window.LocalNotifications.schedule({
+                await LocalNotifications.schedule({
                   notifications: [
                     {
                       title: "Pengingat Tugas",
@@ -1605,30 +1606,35 @@
                     },
                   ],
                 });
-                console.log("Task notification scheduled");
+                console.log(
+                  "Task notification scheduled for",
+                  new Date(task.dueDate),
+                );
               }
             }
           }
         } catch (e) {
-          console.error(e);
+          console.error("Schedule Notification Error:", e);
         }
       }
 
       async function cancelTaskNotification(taskId) {
         try {
-          if (window.LocalNotifications) {
+          if (window.Capacitor && window.Capacitor.Plugins.LocalNotifications) {
+            const LocalNotifications =
+              window.Capacitor.Plugins.LocalNotifications;
             const notifId = Math.abs(
               taskId.split("").reduce((a, b) => {
                 a = (a << 5) - a + b.charCodeAt(0);
                 return a & a;
               }, 0),
             );
-            await window.LocalNotifications.cancel({
+            await LocalNotifications.cancel({
               notifications: [{ id: notifId }],
             });
           }
         } catch (e) {
-          console.error(e);
+          console.error("Cancel Notification Error:", e);
         }
       }
 
