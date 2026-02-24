@@ -715,30 +715,66 @@
               datepicker-autoselect-today
               class="mx-auto sm:mx-0 flex justify-center my-5 [&>div>div]:shadow-none [&>div>div]:bg-slate-50 [&>div>div]:dark:bg-slate-800/50 [&_div>button]:bg-slate-50 [&_div>button]:dark:bg-slate-800/50"
             ></div>
-            <label
-              class="text-sm font-medium text-slate-800 dark:text-slate-100 mb-2 block"
-            >
-              Pilih Jam
-            </label>
-            <div class="mb-5 flex justify-center">
-              <div class="relative max-w-sm w-full">
+            <div class="flex justify-between items-center px-4 mb-2">
+              <label
+                class="text-sm font-medium text-slate-800 dark:text-slate-100"
+              >
+                Pilih Jam
+              </label>
+              <button
+                id="btnSetToday"
+                type="button"
+                class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline px-2 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              >
+                Pilih Hari Ini
+              </button>
+            </div>
+            <style>
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+
+              .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            </style>
+            <div class="mb-8 flex justify-center items-center gap-4">
+              <!-- Hour Tumbler -->
+              <div
+                class="relative w-20 h-40 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden"
+              >
                 <div
-                  class="absolute inset-y-0 end-0 top-0 flex items-center pe-3.5 pointer-events-none"
+                  class="absolute inset-y-0 w-full h-12 my-auto bg-blue-100/50 dark:bg-blue-900/30 border-y border-blue-200 dark:border-blue-800 pointer-events-none z-10 transition-colors"
+                ></div>
+                <div
+                  id="hourTumbler"
+                  class="h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar py-[56px] px-2 text-center scroll-smooth"
                 >
-                  <i
-                    data-lucide="clock"
-                    class="w-4 h-4 text-slate-500 dark:text-slate-400"
-                  ></i>
+                  <!-- JS injected -->
                 </div>
-                <input
-                  type="time"
-                  id="timeInput"
-                  class="bg-slate-50 border leading-none border-slate-300 text-slate-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 dark:bg-slate-800/50 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 font-medium"
-                  min="00:00"
-                  max="23:59"
-                  value="12:00"
-                  required
-                />
+              </div>
+
+              <!-- Separator -->
+              <div
+                class="text-3xl font-bold text-slate-300 dark:text-slate-600 pb-1"
+              >
+                :
+              </div>
+
+              <!-- Minute Tumbler -->
+              <div
+                class="relative w-20 h-40 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-inner overflow-hidden"
+              >
+                <div
+                  class="absolute inset-y-0 w-full h-12 my-auto bg-blue-100/50 dark:bg-blue-900/30 border-y border-blue-200 dark:border-blue-800 pointer-events-none z-10 transition-colors"
+                ></div>
+                <div
+                  id="minuteTumbler"
+                  class="h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar py-[56px] px-2 text-center scroll-smooth"
+                >
+                  <!-- JS injected -->
+                </div>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2">
@@ -830,6 +866,45 @@
               Simpan
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div
+      id="confirmModal"
+      class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] items-center justify-center p-4"
+    >
+      <div
+        id="confirmModalContent"
+        class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm scale-95 opacity-0 transition-all duration-300 p-6 text-center"
+      >
+        <div
+          class="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400"
+        >
+          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+        </div>
+        <h3
+          id="confirmMessage"
+          class="mb-6 text-lg font-medium text-slate-800 dark:text-slate-100"
+        >
+          Apakah Anda yakin?
+        </h3>
+        <div class="flex gap-3 justify-center">
+          <button
+            id="btnConfirmCancel"
+            type="button"
+            class="flex-1 px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            id="btnConfirmOk"
+            type="button"
+            class="flex-1 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium transition-colors"
+          >
+            Hapus
+          </button>
         </div>
       </div>
     </div>
@@ -1067,6 +1142,7 @@
         btnTaskReminder: $("btnTaskReminder"),
         taskReminderLabel: $("taskReminderLabel"),
         btnSaveTimepicker: $("btnSaveTimepicker"),
+        btnSetToday: $("btnSetToday"), // New
         inlineDatepicker: $("inlineDatepicker"),
         btnSaveTask: $("btnSaveTask"),
         btnCloseAddTask: $("btnCloseAddTask"),
@@ -1101,6 +1177,13 @@
         tabRegister: $("tabRegister"),
         loginForm: $("loginForm"),
         registerForm: $("registerForm"),
+
+        // Confirm
+        confirmModal: $("confirmModal"),
+        confirmModalContent: $("confirmModalContent"),
+        confirmMessage: $("confirmMessage"),
+        btnConfirmCancel: $("btnConfirmCancel"),
+        btnConfirmOk: $("btnConfirmOk"),
         loginEmail: $("loginEmail"),
         loginPassword: $("loginPassword"),
         loginError: $("loginError"),
@@ -1252,15 +1335,96 @@
         });
       }
 
+      // Tumbler JS Logic
+      const hourTumbler = document.getElementById("hourTumbler");
+      const minuteTumbler = document.getElementById("minuteTumbler");
+
+      function populateTumbler(element, max, step) {
+        if (!element) return;
+        element.innerHTML = "";
+        for (let i = 0; i < max; i += step) {
+          const div = document.createElement("div");
+          div.className =
+            "h-12 flex items-center justify-center snap-center text-3xl font-bold cursor-pointer text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-all select-none";
+          div.textContent = i.toString().padStart(2, "0");
+          div.dataset.val = i;
+
+          div.addEventListener("click", () => {
+            div.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+
+          element.appendChild(div);
+        }
+      }
+
+      function updateTumblerActiveState(element) {
+        if (!element) return;
+        const itemHeight = 48; // h-12 is 48px
+        const index = Math.round(element.scrollTop / itemHeight);
+
+        Array.from(element.children).forEach((child, i) => {
+          if (i === index) {
+            child.classList.remove("text-slate-400", "scale-100");
+            child.classList.add(
+              "text-blue-600",
+              "scale-110",
+              "dark:text-blue-400",
+            );
+          } else {
+            child.classList.add("text-slate-400", "scale-100");
+            child.classList.remove(
+              "text-blue-600",
+              "scale-110",
+              "dark:text-blue-400",
+            );
+          }
+        });
+      }
+
+      function getTumblerValue(element) {
+        if (!element) return 0;
+        const itemHeight = 48;
+        const index = Math.round(element.scrollTop / itemHeight);
+        const item = element.children[index];
+        return item ? parseInt(item.dataset.val, 10) : 0;
+      }
+
+      function setTumblerValue(element, val) {
+        if (!element) return;
+        const itemHeight = 48;
+        const items = Array.from(element.children);
+        const index = items.findIndex(
+          (item) => parseInt(item.dataset.val, 10) === val,
+        );
+        if (index !== -1) {
+          element.scrollTo({ top: index * itemHeight, behavior: "instant" });
+          updateTumblerActiveState(element);
+        }
+      }
+
+      if (hourTumbler && minuteTumbler) {
+        populateTumbler(hourTumbler, 24, 1);
+        populateTumbler(minuteTumbler, 60, 1);
+
+        // Setup scroll listeners
+        hourTumbler.addEventListener("scroll", () =>
+          updateTumblerActiveState(hourTumbler),
+        );
+        minuteTumbler.addEventListener("scroll", () =>
+          updateTumblerActiveState(minuteTumbler),
+        );
+
+        // INIT values
+        setTimeout(() => {
+          setTumblerValue(hourTumbler, 12);
+          setTumblerValue(minuteTumbler, 0);
+        }, 100);
+      }
+
       if (els.btnSaveTimepicker) {
         els.btnSaveTimepicker.addEventListener("click", () => {
-          const timeInput = document.getElementById("timeInput");
-          let timeStr = "12:00";
-          if (timeInput && timeInput.value) {
-            timeStr = timeInput.value;
-          }
-
-          const [hours, minutes] = timeStr.split(":").map(Number);
+          const hours = getTumblerValue(hourTumbler);
+          const minutes = getTumblerValue(minuteTumbler);
           const finalDate = new Date(selectedTaskDate);
           finalDate.setHours(hours, minutes, 0, 0);
 
@@ -1279,6 +1443,19 @@
             taskReminderTime = finalDate.getTime();
             els.taskReminderLabel.textContent = formatted;
           }
+        });
+      }
+
+      if (els.btnSetToday) {
+        els.btnSetToday.addEventListener("click", () => {
+          const now = new Date();
+          now.setSeconds(0, 0); // normalize
+
+          selectedTaskDate = now;
+          setTumblerValue(hourTumbler, now.getHours());
+          setTumblerValue(minuteTumbler, now.getMinutes());
+
+          showToast("Ditetapkan ke hari ini");
         });
       }
 
@@ -1321,7 +1498,6 @@
           return showToast("Judul dan Tenggat Waktu harus diisi");
 
         const newTask = {
-          id: uid(),
           title,
           dueDate: taskDueDate,
           reminder: taskReminderTime,
@@ -1329,22 +1505,76 @@
           createdAt: Date.now(),
         };
 
-        tasks.unshift(newTask);
-        saveTasks();
+        try {
+          // Sync to Firestore first to get the real ID
+          if (window.saveTaskToFirestore) {
+            const taskId = await window.saveTaskToFirestore(newTask);
+            newTask.id = taskId;
+          } else {
+            newTask.id = uid(); // fallback
+          }
 
-        // Notification (client-side implementation handled elsewhere, but keeping schedule if supported)
-        if (newTask.reminder) {
-          await scheduleTaskNotification(newTask);
+          tasks.unshift(newTask);
+          saveTasks();
+
+          // Update UI immediately
+          if (currentMode === "tasks") {
+            render();
+          }
+          showToast("Tugas disimpan");
+          closeAddTaskModal();
+
+          // Notification (client-side implementation handled elsewhere, but keeping schedule if supported)
+          if (newTask.reminder) {
+            scheduleTaskNotification(newTask).catch(console.error);
+          }
+        } catch (error) {
+          console.error("Error saving new task:", error);
+          showToast("Gagal menyimpan tugas");
         }
-
-        // Sync with Firebase (will be implemented next)
-        if (window.saveTaskToFirestore) {
-          await window.saveTaskToFirestore(newTask);
-        }
-
-        showToast("Tugas disimpan");
-        closeAddTaskModal();
       });
+
+      // ============ Custom Confirm Logic ============
+      function customConfirm(message) {
+        return new Promise((resolve) => {
+          els.confirmMessage.textContent = message;
+          els.confirmModal.classList.remove("hidden");
+          els.confirmModal.classList.add("flex");
+
+          setTimeout(() => {
+            els.confirmModalContent.classList.remove("scale-95", "opacity-0");
+            els.confirmModalContent.classList.add("scale-100", "opacity-100");
+          }, 10);
+
+          const cleanup = () => {
+            els.confirmModalContent.classList.remove(
+              "scale-100",
+              "opacity-100",
+            );
+            els.confirmModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+              els.confirmModal.classList.add("hidden");
+              els.confirmModal.classList.remove("flex");
+            }, 200);
+
+            els.btnConfirmCancel.removeEventListener("click", onCancel);
+            els.btnConfirmOk.removeEventListener("click", onOk);
+          };
+
+          const onCancel = () => {
+            cleanup();
+            resolve(false);
+          };
+
+          const onOk = () => {
+            cleanup();
+            resolve(true);
+          };
+
+          els.btnConfirmCancel.addEventListener("click", onCancel);
+          els.btnConfirmOk.addEventListener("click", onOk);
+        });
+      }
 
       // ============ Task Notification Logic ============
       async function scheduleTaskNotification(task) {
@@ -1416,15 +1646,25 @@
             // Reschedule if un-completed and still valid
             await scheduleTaskNotification(t);
           }
+
+          // Sync to Firestore
+          if (window.saveTaskToFirestore) {
+            window.saveTaskToFirestore(t).catch(console.error);
+          }
         }
       }
 
       async function deleteTask(id) {
-        if (!confirm("Hapus tugas ini?")) return;
+        if (!(await customConfirm("Hapus tugas ini?"))) return;
         await cancelTaskNotification(id);
         tasks = tasks.filter((t) => t.id !== id);
         saveTasks();
         showToast("Tugas dihapus");
+
+        // Sync to Firestore
+        if (window.deleteTaskFromFirestore) {
+          window.deleteTaskFromFirestore(id).catch(console.error);
+        }
       }
 
       function openAddModal() {
@@ -1649,7 +1889,7 @@
       // ... (openEdit, closeEdit, saveEdit) ...
 
       async function deleteNote(id) {
-        if (!confirm("Hapus catatan ini?")) return;
+        if (!(await customConfirm("Hapus catatan ini?"))) return;
 
         try {
           await window.deleteNoteFromFirestore(id);
@@ -2310,6 +2550,7 @@
           currentMode = "tasks";
           els.notesGrid.classList.add("hidden");
           els.tasksView.classList.remove("hidden");
+          setTaskFilter("all"); // Reset task filter when entering tasks view
         } else {
           currentMode = "notes";
           els.notesGrid.classList.remove("hidden");
@@ -2339,6 +2580,14 @@
             type === "drafts"
               ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
               : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          }`;
+        }
+
+        if (els.navTasks) {
+          els.navTasks.className = `${btnClass} ${
+            type === "tasks"
+              ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 mt-4"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 mt-4"
           }`;
         }
 
@@ -2380,7 +2629,7 @@
 
       async function clearAll() {
         if (!notes.length) return;
-        if (confirm("Hapus SEMUA catatan?")) {
+        if (await customConfirm("Hapus SEMUA catatan?")) {
           try {
             await window.clearAllNotesFromFirestore();
             notes = [];
@@ -2898,8 +3147,10 @@
         updateDoc,
         deleteDoc,
         doc,
+        setDoc,
         query,
         where,
+        orderBy,
         writeBatch,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
       import {
@@ -2994,7 +3245,6 @@
           const q = query(
             collection(db, "tasks"),
             where("userId", "==", currentUserId),
-            orderBy("createdAt", "desc"),
           );
 
           const snapshot = await getDocs(q);
@@ -3011,9 +3261,6 @@
 
       window.saveTaskToFirestore = async function (task) {
         try {
-          // If the id is a generated local id, we should let Firestore generate it or use it as doc ID
-          const isLocalId = !task.id.includes("-"); // Rough check, adjust if needed
-
           const taskData = {
             userId: currentUserId,
             title: task.title,
@@ -3023,11 +3270,15 @@
             createdAt: task.createdAt || Date.now(),
           };
 
-          // Use the id we set, but handle new documents
-          const docRef = doc(db, "tasks", task.id);
-          // setDoc with merge: true creates or updates
-          await setDoc(docRef, taskData, { merge: true });
-          return task.id;
+          if (task.id) {
+            // Update existing
+            await setDoc(doc(db, "tasks", task.id), taskData, { merge: true });
+            return task.id;
+          } else {
+            // Create new
+            const docRef = await addDoc(collection(db, "tasks"), taskData);
+            return docRef.id;
+          }
         } catch (error) {
           console.error("Error saving task:", error);
           throw error;
@@ -3126,7 +3377,15 @@
             collection(db, "notes"),
             where("userId", "==", "default_user"),
           );
-          const guestSnap = await getDocs(guestQ);
+
+          let guestSnap;
+          try {
+            guestSnap = await getDocs(guestQ);
+          } catch (e) {
+            console.warn("Could not read guest notes (likely permissions):", e);
+            return 0; // Skip migration peacefully if rules deny it
+          }
+
           if (guestSnap.empty) return 0;
 
           let count = 0;
