@@ -406,12 +406,15 @@
     </div>
 
     <!-- Task View Modal (Read Only) -->
-    <div id="taskViewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/20 backdrop-blur-sm p-4">
+    <div id="taskViewModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/20 backdrop-blur-sm p-4">
         <div id="taskViewModalContent"
             class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 transform scale-95 opacity-0 transition-all duration-200 flex flex-col">
             <div class="flex items-start justify-between mb-2">
-                <h3 id="taskViewTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100 break-words flex-1 mr-4"></h3>
-                <button id="btnTaskCloseView" class="p-2 -mt-2 -mr-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <h3 id="taskViewTitle"
+                    class="text-xl font-bold text-slate-800 dark:text-slate-100 break-words flex-1 mr-4"></h3>
+                <button id="btnTaskCloseView"
+                    class="p-2 -mt-2 -mr-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                     <i data-lucide="x" class="h-5 w-5"></i>
                 </button>
             </div>
@@ -421,11 +424,13 @@
                     <i data-lucide="calendar" class="h-4 w-4"></i>
                     <span id="taskViewDate"></span>
                 </div>
-                <div id="taskViewReminderContainer" class="flex items-center gap-2 hidden text-blue-500 dark:text-blue-400">
+                <div id="taskViewReminderContainer"
+                    class="flex items-center gap-2 hidden text-blue-500 dark:text-blue-400">
                     <i data-lucide="bell" class="h-4 w-4"></i>
                     <span id="taskViewReminder"></span>
                 </div>
-                <div id="taskViewRepeatContainer" class="flex items-center gap-2 hidden text-emerald-500 dark:text-emerald-400">
+                <div id="taskViewRepeatContainer"
+                    class="flex items-center gap-2 hidden text-emerald-500 dark:text-emerald-400">
                     <i data-lucide="repeat" class="h-4 w-4"></i>
                     <span id="taskViewRepeat"></span>
                 </div>
@@ -436,7 +441,8 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <button id="btnTaskViewEdit" class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-colors font-medium text-sm">
+                <button id="btnTaskViewEdit"
+                    class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-colors font-medium text-sm">
                     <i data-lucide="pencil" class="h-4 w-4"></i>
                     Edit
                 </button>
@@ -545,32 +551,41 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <!-- Repeat Dropdown -->
                         <div class="relative">
-                            <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Ulangi</label>
-                            <select id="taskRepeat" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm text-slate-800 dark:text-slate-100 appearance-none cursor-pointer">
+                            <label
+                                class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Ulangi</label>
+                            <select id="taskRepeat"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm text-slate-800 dark:text-slate-100 appearance-none cursor-pointer">
                                 <option value="none">Tidak ada</option>
                                 <option value="daily">Setiap Hari</option>
                                 <option value="weekly">Setiap Minggu</option>
                                 <option value="monthly">Setiap Bulan</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-5 text-slate-400">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 pt-5 text-slate-400">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
                             </div>
                         </div>
                     </div>
 
                     <!-- Sub-tasks Section -->
                     <div class="relative pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
-                        <label class="block text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wide">Sub-Tugas</label>
+                        <label
+                            class="block text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wide">Sub-Tugas</label>
                         <div id="subtasksContainer" class="space-y-2 mb-3 max-h-40 overflow-y-auto pr-1">
                             <!-- JS injected subtasks go here -->
                         </div>
                         <div class="flex gap-2">
-                            <input id="newSubtaskInput" type="text" placeholder="Tambah sub-tugas baru..." class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm text-slate-800 dark:text-slate-100" />
-                            <button type="button" onclick="addSubtask()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg transition-colors">
+                            <input id="newSubtaskInput" type="text" placeholder="Tambah sub-tugas baru..."
+                                class="flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm text-slate-800 dark:text-slate-100" />
+                            <button type="button" onclick="addSubtask()"
+                                class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg transition-colors">
                                 <i data-lucide="plus" class="h-4 w-4"></i>
                             </button>
                         </div>
@@ -1080,22 +1095,22 @@
             render();
         }
 
-        window.updateAppBadge = async function() {
+        window.updateAppBadge = async function () {
             if (window.Capacitor && window.Capacitor.Plugins.Badge) {
                 try {
                     const Badge = window.Capacitor.Plugins.Badge;
                     const now = Date.now();
-                    const count = tasks.filter(t => 
-                        !t.completed && t.dueDate && 
+                    const count = tasks.filter(t =>
+                        !t.completed && t.dueDate &&
                         (t.dueDate <= now || isToday(t.dueDate))
                     ).length;
-                    
+
                     if (count > 0) {
                         await Badge.set({ count });
                     } else {
                         await Badge.clear();
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error("App Badge Error:", e);
                 }
             }
@@ -1104,7 +1119,8 @@
         function saveTasks() {
             localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
             render();
-            if (currentUserId !== 'default_user' && window.updateAppBadge) {
+            const uid = window.getCurrentUserId ? window.getCurrentUserId() : 'default_user';
+            if (uid !== 'default_user' && window.updateAppBadge) {
                 window.updateAppBadge();
             }
         }
@@ -1308,7 +1324,7 @@
         let editingTaskId = null;
         let currentSubtasks = [];
 
-        window.renderSubtasks = function() {
+        window.renderSubtasks = function () {
             const container = document.getElementById('subtasksContainer');
             if (!container) return;
             if (currentSubtasks.length === 0) {
@@ -1324,10 +1340,10 @@
                     </button>
                 </div>
             `).join('');
-            lucide.createIcons({nodes: container.querySelectorAll("[data-lucide]")});
+            lucide.createIcons({ nodes: container.querySelectorAll("[data-lucide]") });
         };
 
-        window.addSubtask = function() {
+        window.addSubtask = function () {
             const input = document.getElementById('newSubtaskInput');
             const title = input.value.trim();
             if (!title) return;
@@ -1336,14 +1352,14 @@
             renderSubtasks();
         };
 
-        window.toggleSubtask = function(index) {
-            if(currentSubtasks[index]) {
+        window.toggleSubtask = function (index) {
+            if (currentSubtasks[index]) {
                 currentSubtasks[index].completed = !currentSubtasks[index].completed;
                 renderSubtasks();
             }
         };
 
-        window.removeSubtask = function(index) {
+        window.removeSubtask = function (index) {
             currentSubtasks.splice(index, 1);
             renderSubtasks();
         };
@@ -1430,7 +1446,7 @@
                 selectedTaskDate = new Date();
                 const defaultTime = document.getElementById("12-pm");
                 if (defaultTime) defaultTime.checked = true;
-                
+
                 document.getElementById('taskRepeat').value = 'none';
                 currentSubtasks = [];
                 document.getElementById('newSubtaskInput').value = '';
@@ -1629,7 +1645,7 @@
                         }
 
                         // Duplicate subtasks but uncheck them
-                        const newSubtasks = t.subtasks ? t.subtasks.map(st => ({...st, completed: false})) : [];
+                        const newSubtasks = t.subtasks ? t.subtasks.map(st => ({ ...st, completed: false })) : [];
 
                         const newTask = {
                             title: t.title,
@@ -1647,15 +1663,15 @@
                             } else {
                                 newTask.id = uid();
                             }
-                            
+
                             tasks.push(newTask);
                             saveTasks();
                             if (newTask.reminder) scheduleTaskNotification(newTask).catch(console.error);
-                            
+
                             const periodName = t.repeat === 'daily' ? 'Harian' : t.repeat === 'weekly' ? 'Mingguan' : 'Bulanan';
                             showToast(`Tugas selesai. Tugas berulang (${periodName}) dibuat`);
                             if (currentMode === "tasks") render();
-                        } catch(err) {
+                        } catch (err) {
                             console.error("Error creating recurring task", err);
                         }
                     }
@@ -1668,7 +1684,7 @@
                 if (window.saveTaskToFirestore) {
                     window.saveTaskToFirestore(t).catch(console.error);
                 }
-                
+
                 if (currentMode === "tasks" && !(t.completed && t.repeat && t.repeat !== 'none')) {
                     // re-render if we didn't already re-render inside the repeat block
                     render();
@@ -1911,7 +1927,7 @@
         // ============ Task View Modal ============
         let currentTaskViewId = null;
 
-        window.openTaskView = function(id) {
+        window.openTaskView = function (id) {
             const t = tasks.find((x) => x.id === id);
             if (!t) return;
 
@@ -1931,7 +1947,7 @@
             elsObj.title.textContent = t.title || "(Tanpa Judul)";
             elsObj.title.className = `text-xl font-bold break-words flex-1 mr-4 ${t.completed ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}`;
 
-            if(t.dueDate) {
+            if (t.dueDate) {
                 elsObj.date.textContent = new Date(t.dueDate).toLocaleDateString("id-ID", {
                     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
                     hour: '2-digit', minute: '2-digit'
@@ -1963,7 +1979,7 @@
                 elsObj.subsCont.classList.add('hidden');
             }
 
-            lucide.createIcons({nodes: elsObj.subsCont.querySelectorAll("[data-lucide]")});
+            lucide.createIcons({ nodes: elsObj.subsCont.querySelectorAll("[data-lucide]") });
 
             elsObj.modal.classList.remove("hidden");
             elsObj.modal.classList.add("flex");
@@ -1973,7 +1989,7 @@
             }, 10);
         };
 
-        window.closeTaskView = function() {
+        window.closeTaskView = function () {
             const modal = document.getElementById('taskViewModal');
             const content = document.getElementById('taskViewModalContent');
             content.classList.remove("scale-100", "opacity-100");
@@ -1985,16 +2001,20 @@
             }, 200);
         };
 
-        window.toggleTaskSubtasksUI = function(e, taskId) {
+        window.openSubtaskTasks = window.openSubtaskTasks || new Set();
+
+        window.toggleTaskSubtasksUI = function (e, taskId) {
             e.stopPropagation(); // prevent modal from opening
             const container = document.getElementById(`subtasks-list-${taskId}`);
             const icon = document.getElementById(`subtasks-icon-${taskId}`);
             if (container) {
                 if (container.classList.contains('hidden')) {
                     container.classList.remove('hidden');
+                    window.openSubtaskTasks.add(taskId);
                     if (icon) icon.style.transform = "rotate(180deg)";
                 } else {
                     container.classList.add('hidden');
+                    window.openSubtaskTasks.delete(taskId);
                     if (icon) icon.style.transform = "rotate(0deg)";
                 }
             }
@@ -2008,7 +2028,7 @@
             if (editBtn) editBtn.addEventListener('click', () => {
                 const id = currentTaskViewId;
                 closeTaskView();
-                if(id) openAddTaskModal(id);
+                if (id) openAddTaskModal(id);
             });
         });
 
@@ -2690,26 +2710,26 @@
 
             // Update Active State Sidebar
             els.navAll.className = `${btnClass} ${type === "all"
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`;
 
             els.navPinned.className = `${btnClass} ${type === "pinned"
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`;
 
             if (els.navDrafts) {
                 els.navDrafts.className = `${btnClass} ${type === "drafts"
-                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`;
             }
 
             if (els.navTasks) {
                 els.navTasks.className = `${btnClass} ${type === "tasks"
-                        ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 mt-4"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 mt-4"
+                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 mt-4"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 mt-4"
                     }`;
             }
 
@@ -2860,6 +2880,10 @@
 
             els.taskList.innerHTML = filteredTasks
                 .map((t) => {
+                    const isOpen = window.openSubtaskTasks && window.openSubtaskTasks.has(t.id);
+                    const subListClass = isOpen ? "w-full pl-11 pr-4 pb-3 -mt-2" : "hidden w-full pl-11 pr-4 pb-3 -mt-2";
+                    const subIconStyle = isOpen ? "transform: rotate(180deg)" : "transform: rotate(0deg)";
+
                     const dateText = t.dueDate
                         ? new Date(t.dueDate).toLocaleDateString("id-ID", {
                             day: "numeric",
@@ -2891,24 +2915,24 @@
                     const subtaskTotal = t.subtasks ? t.subtasks.length : 0;
                     let subtaskHtml = '';
                     let subtaskListHtml = '';
-                    
+
                     if (subtaskTotal > 0) {
                         subtaskHtml = `
                         <button onclick="toggleTaskSubtasksUI(event, '${t.id}')" class="flex items-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-800 px-1.5 py-0.5 rounded transition-colors text-slate-500 dark:text-slate-400">
                             <i data-lucide="list-checks" class="h-3.5 w-3.5"></i>
                             <span>${subtaskCount}/${subtaskTotal}</span>
-                            <i id="subtasks-icon-${t.id}" data-lucide="chevron-down" class="h-3.5 w-3.5 transition-transform duration-200"></i>
+                            <i id="subtasks-icon-${t.id}" data-lucide="chevron-down" class="h-3.5 w-3.5 transition-transform duration-200" style="${subIconStyle}"></i>
                         </button>`;
-                        
+
                         const items = t.subtasks.map((st, i) => `
                             <div class="flex items-center gap-2 py-1 relative z-20" onclick="event.stopPropagation();">
                                 <input type="checkbox" ${t.completed ? 'disabled ' : ''}${st.completed ? 'checked' : ''} onchange="toggleIndSubtask('${t.id}', ${i})" class="w-3.5 h-3.5 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
                                 <span class="text-[13px] text-slate-600 dark:text-slate-400 ${st.completed ? 'line-through opacity-70' : ''}">${escapeHtml(st.title)}</span>
                             </div>
                         `).join('');
-                        
+
                         subtaskListHtml = `
-                        <div id="subtasks-list-${t.id}" class="hidden w-full pl-11 pr-4 pb-3 -mt-2">
+                        <div id="subtasks-list-${t.id}" class="${subListClass}">
                             <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
                                 ${items}
                             </div>
@@ -2961,14 +2985,13 @@
                                     </div>
                                     ${subtaskHtml}
                                     ${repeatHtml}
-                                    ${
-                                      t.reminder
-                                        ? `
+                                    ${t.reminder
+                            ? `
                                     <div class="flex items-center gap-1 text-blue-500 dark:text-blue-400">
                                         <i data-lucide="bell" class="h-3.5 w-3.5 ${t.completed ? "opacity-50" : ""}"></i>
                                     </div>`
-                                        : ""
-                                    }
+                            : ""
+                        }
                                 </div>
                             </div>
                             
@@ -2998,8 +3021,8 @@
 
             attachSwipeListeners();
         }
-        
-        window.toggleIndSubtask = function(taskId, subtaskIndex) {
+
+        window.toggleIndSubtask = function (taskId, subtaskIndex) {
             const t = tasks.find(x => x.id === taskId);
             if (t && t.subtasks && t.subtasks[subtaskIndex]) {
                 t.subtasks[subtaskIndex].completed = !t.subtasks[subtaskIndex].completed;
