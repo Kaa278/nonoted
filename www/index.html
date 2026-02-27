@@ -107,9 +107,13 @@
 <body
     class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300 antialiased selection:bg-blue-500/30 selection:text-blue-600 dark:selection:text-blue-300">
     <div class="flex h-screen w-full overflow-hidden">
+        <!-- Sidebar Backdrop -->
+        <div id="sidebarBackdrop"
+            class="fixed inset-0 bg-slate-950/20 dark:bg-black/60 backdrop-blur-sm z-[45] hidden md:hidden transition-opacity">
+        </div>
         <!-- Sidebar -->
         <aside id="sidebar"
-            class="w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hidden md:flex fixed md:relative inset-y-0 left-0 z-50 h-full">
+            class="w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hidden md:flex fixed md:relative inset-y-0 left-0 z-50 h-full shadow-2xl md:shadow-none">
             <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
                 <div class="flex items-center gap-2 font-bold text-lg tracking-tight">
                     <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
@@ -384,11 +388,28 @@
             </div>
 
             <!-- In-Note Search -->
-            <div class="relative mb-4 group">
-                <input id="viewSearchInput" type="text" placeholder="Temukan di catatan ini..."
-                    class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-transparent focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 dark:focus:border-blue-500 transition-all text-sm outline-none placeholder:text-slate-400/70" />
-                <i data-lucide="search"
-                    class="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+            <div class="mb-4 flex gap-2 items-center">
+                <div class="relative flex-1 group">
+                    <input id="viewSearchInput" type="text" placeholder="Temukan di catatan ini..."
+                        class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-transparent focus:bg-white dark:focus:bg-slate-900 focus:border-blue-500 dark:focus:border-blue-500 transition-all text-sm outline-none placeholder:text-slate-400/70" />
+                    <i data-lucide="search"
+                        class="absolute left-3 top-2.5 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                </div>
+                <!-- Search Navigation -->
+                <div id="viewSearchNav"
+                    class="hidden items-center gap-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent border-slate-200 dark:border-slate-800 px-2 py-1 transition-all">
+                    <span id="viewSearchCount"
+                        class="px-2 text-xs font-medium text-slate-500 dark:text-slate-400 min-w-[3rem] text-center">0/0</span>
+                    <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+                    <button id="btnViewSearchPrev"
+                        class="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-50 transition-all shadow-sm">
+                        <i data-lucide="chevron-up" class="h-4 w-4"></i>
+                    </button>
+                    <button id="btnViewSearchNext"
+                        class="p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 disabled:opacity-50 transition-all shadow-sm">
+                        <i data-lucide="chevron-down" class="h-4 w-4"></i>
+                    </button>
+                </div>
             </div>
 
             <div id="viewText"
@@ -950,6 +971,10 @@
             viewTag: $("viewTag"),
             viewDate: $("viewDate"),
             viewSearchInput: $("viewSearchInput"),
+            viewSearchNav: $("viewSearchNav"),
+            viewSearchCount: $("viewSearchCount"),
+            btnViewSearchPrev: $("btnViewSearchPrev"),
+            btnViewSearchNext: $("btnViewSearchNext"),
             btnViewEdit: $("btnViewEdit"),
             // Nav
             navDrafts: $("nav-drafts"),
@@ -1542,6 +1567,7 @@
 
                     els.btnConfirmCancel.removeEventListener("click", onCancel);
                     els.btnConfirmOk.removeEventListener("click", onOk);
+                    els.confirmModal.removeEventListener("click", onOutsideClick);
                 };
 
                 const onCancel = () => {
@@ -1554,8 +1580,13 @@
                     resolve(true);
                 };
 
+                const onOutsideClick = (e) => {
+                    if (e.target === els.confirmModal) onCancel();
+                };
+
                 els.btnConfirmCancel.addEventListener("click", onCancel);
                 els.btnConfirmOk.addEventListener("click", onOk);
+                els.confirmModal.addEventListener("click", onOutsideClick);
             });
         }
 
@@ -1760,12 +1791,7 @@
             }, 200);
         }
 
-        // Close View Modal on Outside Click
-        els.viewModal.addEventListener("click", (e) => {
-            if (e.target === els.viewModal) {
-                closeView();
-            }
-        });
+
 
         // Close Add Modal
         els.btnCloseAdd.addEventListener("click", () => {
@@ -1828,6 +1854,8 @@
         // ============ View Modal ============
         // Stores the last search query so openView can highlight it
         let lastSearchQuery = "";
+        let currentSearchMatchIndex = -1;
+        let totalSearchMatches = 0;
 
         function highlightText(text, query) {
             if (!query) return escapeHtml(text);
@@ -1837,7 +1865,7 @@
             );
             return escapeHtml(text).replace(
                 re,
-                '<mark class="bg-yellow-200 dark:bg-yellow-600/50 text-slate-900 dark:text-slate-100 rounded px-0.5">$1</mark>',
+                '<mark class="search-match bg-yellow-200 dark:bg-yellow-600/50 text-slate-900 dark:text-slate-100 rounded px-0.5 transition-colors">$1</mark>',
             );
         }
 
@@ -1857,6 +1885,8 @@
 
             // Initial Highlight
             renderViewText(n.text, q);
+            currentSearchMatchIndex = 0;
+            updateSearchNavigation(q);
 
             els.viewDate.textContent = formatDate(n.createdAt);
 
@@ -1876,7 +1906,9 @@
             // View Search Listener
             els.viewSearchInput.oninput = (e) => {
                 const searchVal = e.target.value.trim();
+                currentSearchMatchIndex = 0;
                 renderViewText(n.text, searchVal);
+                updateSearchNavigation(searchVal);
             };
 
             els.viewModal.classList.remove("hidden");
@@ -1888,19 +1920,45 @@
                 // Initialize icons in modal (for the new search icon)
                 lucide.createIcons();
 
-                // Scroll to first highlighted match if coming from search
+                // Scroll to active match if coming from search
                 if (q) {
                     setTimeout(() => {
-                        const firstMark = els.viewText.querySelector("mark");
-                        if (firstMark) {
-                            firstMark.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                            });
-                        }
+                        updateSearchNavigation(q);
                     }, 150);
                 }
             }, 10);
+        }
+
+        function updateSearchNavigation(searchVal) {
+            const marks = Array.from(els.viewText.querySelectorAll("mark.search-match"));
+            totalSearchMatches = marks.length;
+
+            if (totalSearchMatches > 0) {
+                els.viewSearchNav.classList.remove("hidden");
+                els.viewSearchNav.classList.add("flex");
+
+                if (currentSearchMatchIndex >= totalSearchMatches || currentSearchMatchIndex < 0) {
+                    currentSearchMatchIndex = 0;
+                }
+
+                els.viewSearchCount.textContent = `${currentSearchMatchIndex + 1}/${totalSearchMatches}`;
+
+                marks.forEach((m, idx) => {
+                    if (idx === currentSearchMatchIndex) {
+                        m.classList.remove("bg-yellow-200", "dark:bg-yellow-600/50", "text-slate-900", "dark:text-slate-100");
+                        m.classList.add("bg-orange-400", "dark:bg-orange-600", "text-white");
+                        m.scrollIntoView({ behavior: "smooth", block: "center" });
+                    } else {
+                        m.classList.add("bg-yellow-200", "dark:bg-yellow-600/50", "text-slate-900", "dark:text-slate-100");
+                        m.classList.remove("bg-orange-400", "dark:bg-orange-600", "text-white");
+                    }
+                });
+            } else {
+                els.viewSearchNav.classList.add("hidden");
+                els.viewSearchNav.classList.remove("flex");
+                els.viewSearchCount.textContent = "0/0";
+                currentSearchMatchIndex = -1;
+            }
         }
 
         function renderViewText(text, query) {
@@ -3329,26 +3387,90 @@
             els.btnCloseAdd.addEventListener("click", closeAddModal);
 
             // Mobile Sidebar Events
-            if (document.getElementById("btnMenu")) {
-                document.getElementById("btnMenu").addEventListener("click", () => {
-                    const sidebar = document.getElementById("sidebar");
+            const sidebar = document.getElementById("sidebar");
+            const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+            const btnMenu = document.getElementById("btnMenu");
+            const btnCloseSidebar = document.getElementById("btnCloseSidebar");
+
+            function closeMobileSidebar() {
+                if (sidebar) {
+                    sidebar.classList.add("hidden");
+                    sidebar.classList.remove("flex");
+                }
+                if (sidebarBackdrop) {
+                    sidebarBackdrop.classList.add("hidden");
+                }
+            }
+
+            if (btnMenu && sidebar) {
+                btnMenu.addEventListener("click", () => {
                     sidebar.classList.remove("hidden");
                     sidebar.classList.add("flex");
+                    if (sidebarBackdrop) {
+                        sidebarBackdrop.classList.remove("hidden");
+                    }
                 });
-            }
-            if (document.getElementById("btnCloseSidebar")) {
-                document
-                    .getElementById("btnCloseSidebar")
-                    .addEventListener("click", () => {
-                        const sidebar = document.getElementById("sidebar");
-                        sidebar.classList.add("hidden");
-                        sidebar.classList.remove("flex");
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener("click", (e) => {
+                    // Check if we are on mobile (sidebar is rendered over main content)
+                    if (window.innerWidth < 768 && !sidebar.classList.contains("hidden")) {
+                        if (!sidebar.contains(e.target) && !btnMenu.contains(e.target) && e.target !== sidebarBackdrop) {
+                            closeMobileSidebar();
+                        }
+                    }
+                });
+
+                if (sidebarBackdrop) {
+                    sidebarBackdrop.addEventListener("click", () => {
+                        window.requestAnimationFrame(() => {
+                            if (window.innerWidth < 768 && !sidebar.classList.contains("hidden")) {
+                                closeMobileSidebar();
+                            }
+                        })
                     });
+                }
+            }
+            if (btnCloseSidebar && sidebar) {
+                btnCloseSidebar.addEventListener("click", closeMobileSidebar);
             }
 
             // View Modal Events
             if (els.btnCloseView) {
                 els.btnCloseView.addEventListener("click", closeView);
+            }
+
+            // View Modal Search Navigation Events
+            if (els.btnViewSearchNext) {
+                els.btnViewSearchNext.addEventListener("click", () => {
+                    if (totalSearchMatches > 0) {
+                        currentSearchMatchIndex = (currentSearchMatchIndex + 1) % totalSearchMatches;
+                        updateSearchNavigation(els.viewSearchInput.value.trim());
+                    }
+                });
+            }
+            if (els.btnViewSearchPrev) {
+                els.btnViewSearchPrev.addEventListener("click", () => {
+                    if (totalSearchMatches > 0) {
+                        currentSearchMatchIndex = (currentSearchMatchIndex - 1 + totalSearchMatches) % totalSearchMatches;
+                        updateSearchNavigation(els.viewSearchInput.value.trim());
+                    }
+                });
+            }
+            if (els.viewSearchInput) {
+                els.viewSearchInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (totalSearchMatches > 0) {
+                            if (e.shiftKey) {
+                                currentSearchMatchIndex = (currentSearchMatchIndex - 1 + totalSearchMatches) % totalSearchMatches;
+                            } else {
+                                currentSearchMatchIndex = (currentSearchMatchIndex + 1) % totalSearchMatches;
+                            }
+                            updateSearchNavigation(els.viewSearchInput.value.trim());
+                        }
+                    }
+                });
             }
 
             // Auth Modal Events
@@ -3383,12 +3505,22 @@
 
             els.btnCancelLogout.addEventListener("click", closeLogoutModal);
             els.btnConfirmLogout.addEventListener("click", confirmLogout);
-            els.logoutModal.addEventListener("click", (e) => {
-                if (
-                    e.target === els.logoutModal ||
-                    e.target.id === "logoutModalBackdrop"
-                ) {
-                    closeLogoutModal();
+            // Click outside to close modals
+            [
+                { el: els.addModal, closeFn: closeAddModal },
+                { el: els.addTaskModal, closeFn: closeAddTaskModal },
+                { el: els.authModal, closeFn: closeAuthModal },
+                { el: els.editModal, closeFn: closeEdit },
+                { el: els.logoutModal, closeFn: closeLogoutModal },
+                { el: els.viewModal, closeFn: closeView },
+                { el: document.getElementById('taskViewModal'), closeFn: window.closeTaskView }
+            ].forEach(({ el, closeFn }) => {
+                if (el && typeof closeFn === "function") {
+                    el.addEventListener("click", (e) => {
+                        if (e.target === el || e.target.id === el.id + "Backdrop" || e.target.id === "modalBackdrop") {
+                            closeFn();
+                        }
+                    });
                 }
             });
 
