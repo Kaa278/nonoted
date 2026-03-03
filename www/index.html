@@ -4839,14 +4839,18 @@
                 .replace(/\n/g, '<br>');
         }
 
-        function appendAiMessage(role, text, isAction = false) {
+        function appendAiMessage(role, text, isAction = false, noteId = null) {
             const container = document.getElementById('aiMessages');
             if (!container) return;
             const isUser = role === 'user';
             const div = document.createElement('div');
             div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} fade-in`;
             if (isAction) {
-                div.innerHTML = `<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium max-w-[90%]"><i data-lucide="check-circle" class="h-3.5 w-3.5 shrink-0"></i><span>${escapeAiHtml(text)}</span></div>`;
+                if (noteId) {
+                    div.innerHTML = `<div onclick="openView('${noteId}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium max-w-[90%] cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-800/40 transition-colors shadow-sm"><i data-lucide="check-circle" class="h-3.5 w-3.5 shrink-0"></i><span>${escapeAiHtml(text)}</span><i data-lucide="external-link" class="h-3 w-3 ml-1 opacity-70"></i></div>`;
+                } else {
+                    div.innerHTML = `<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium max-w-[90%]"><i data-lucide="check-circle" class="h-3.5 w-3.5 shrink-0"></i><span>${escapeAiHtml(text)}</span></div>`;
+                }
             } else {
                 div.innerHTML = `<div class="max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${isUser ? 'bg-gradient-to-br from-blue-500 to-violet-600 text-white rounded-br-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-sm'}">${escapeAiHtml(text)}</div>`;
             }
@@ -4875,7 +4879,7 @@
                     notes.unshift(newNote);
                     saveNotes();
                     render();
-                    appendAiMessage('assistant', `✓ Catatan "${action.title || '(tanpa judul)'}" berhasil dibuat!`, true);
+                    appendAiMessage('assistant', `✓ Catatan "${action.title || '(tanpa judul)'}" berhasil dibuat!`, true, noteId);
                 } else if (action.action === 'update_note') {
                     const noteId = action.noteId;
                     const note = notes.find(n => n.id === noteId);
@@ -4887,7 +4891,7 @@
                     await window.saveNoteToFirestore(note);
                     saveNotes();
                     render();
-                    appendAiMessage('assistant', `✓ Catatan "${note.title || '(tanpa judul)'}" berhasil diupdate!`, true);
+                    appendAiMessage('assistant', `✓ Catatan "${note.title || '(tanpa judul)'}" berhasil diupdate!`, true, noteId);
                 } else if (action.action === 'search_notes') {
                     const q = action.query || '';
                     if (q) { document.getElementById('searchInput').value = q; }
