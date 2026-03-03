@@ -1,4 +1,4 @@
-package com.kaa.nototed;
+package com.kaa.nonoted;
 
 import com.getcapacitor.BridgeActivity;
 
