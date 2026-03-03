@@ -4793,8 +4793,8 @@
 
     <script>
         // ============ AI Assistant ============
-        const OPENROUTER_API_KEY = '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';
-        const AI_MODEL = 'arcee-ai/trinity-mini:free';
+        const OPENROUTER_API_KEY = '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';
+        const AI_MODEL = 'arcee-ai/trinity-large-preview:free';
         let aiHistory = [];
         let aiPanelOpen = false;
 
@@ -4822,8 +4822,12 @@
         }
 
         function getNotesContext() {
-            if (!notes || notes.length === 0) return 'Belum ada catatan.';
-            return notes.slice(0, 40).map(n => `- ID: ${n.id} | Judul: "${n.title || '(tanpa judul)'}" | Tag: ${n.tag || '-'} | Terkunci: ${n.pin ? 'ya' : 'tidak'}`).join('\n');
+            if (!notes || notes.length === 0) return 'Belum ada daftar catatan.';
+            return notes.slice(0, 20).map(n => {
+                const safeText = (n.text || '').substring(0, 300).replace(/\n/g, ' ');
+                const isTruncated = (n.text || '').length > 300 ? '...' : '';
+                return `- ID: ${n.id} | Judul: "${n.title || '-'}" | Tag: ${n.tag || '-'} | Isi: "${safeText}${isTruncated}"`;
+            }).join('\n');
         }
 
         function escapeAiHtml(text) {
@@ -4909,27 +4913,41 @@
             thinking?.classList.remove('hidden');
             document.getElementById('aiMessages').scrollTop = 999999;
 
-            const systemPrompt = `Kamu adalah AI asisten dalam aplikasi catatan bernama Nonoted. Bantu pengguna mengelola catatan mereka. Balas dalam Bahasa Indonesia.
+            const systemPrompt = `Kamu adalah AI asisten cerdas yang tertanam di dalam aplikasi catatan "Nonoted".
+Tugas utamamu adalah membantu pengguna mengelola, mencari, dan menulis catatan.
+Gunakan nada bicara yang ramah, sopan, dan berbahasa Indonesia santai tapi profesional.
 
-Catatan yang ada sekarang:
+Berikut adalah daftar catatan yang dimiliki pengguna saat ini:
 ${getNotesContext()}
 
-Jika pengguna minta tambah/buat catatan baru, sertakan blok JSON ini DI AKHIR responsmu:
+INSTRUKSI AKSI SISTEM:
+Kamu memiliki kemampuan untuk melakukan aksi langsung pada aplikasi pengguna melalui blok JSON khusus.
+Hanya gunakan blok <<<ACTION...ACTION>>> jika pengguna MENYURUH kamu melakukan sesuatu (menambah, mengubah, mencari). Jika pengguna hanya bertanya, jawab dengan teks biasa saja.
+
+1. MEMBUAT CATATAN BARU
+Jika kata-kata pengguna bermaksud membuat catatan baru (contoh: "catat donk besok beli telur", "tambah catatan rapat"):
 <<<ACTION
-{"action":"create_note","title":"Judul Catatan","text":"Isi catatan","tag":"tag_opsional"}
+{"action":"create_note","title":"Judul Singkat (opsional)","text":"Isi detail dari catatan","tag":"kategori (opsional)"}
 ACTION>>>
 
-Jika pengguna minta update/edit catatan, gunakan noteId dari daftar di atas:
+2. MENGUPDATE / MENAMBAH ISI KE CATATAN YANG SUDAH ADA
+Jika pengguna ingin menambah atau mengubah info di catatan yang ada (contoh: "tambahin sepatu di catatan kotoba"):
+Cari ID catatan yang sesuai dari daftar di atas. Tulis ULANG seluruh isi catatan lengkap dengan tambahan barunya di bagian bawah teks lama.
 <<<ACTION
-{"action":"update_note","noteId":"id_catatan","title":"judul baru (opsional)","text":"isi baru (opsional)"}
+{"action":"update_note","noteId":"id_catatan_target","title":"Judul LAMA","text":"Isi teks LAMA + isi teks BARU yang ditambahkan","tag":"Tag LAMA"}
 ACTION>>>
 
-Jika pengguna minta cari catatan:
+3. MENCARI CATATAN
+Jika pengguna ingin filter/mencari:
 <<<ACTION
 {"action":"search_notes","query":"kata kunci"}
 ACTION>>>
 
-Penting: HANYA sertakan blok <<<ACTION...ACTION>>> jika ada aksi yang perlu dilakukan. Jangan sertakan jika ini hanya percakapan biasa. Jangan tulis penjelasan tentang format JSON-nya, langsung lakukan saja.`;
+ATURAN PENTING:
+- Pahami KONTEKS. Pikirkan secara logis: apakah pengguna merujuk ke salah satu catatan dari "daftar catatan" di atas? Jika YA, gunakan \`update_note\`. Jika TIDAK, gunakan \`create_note\`.
+- Jika ini \`update_note\`, PASTIKAN untuk menyertakan konten LAMA di dalam field \`text\` sebelum konten baru. Jika tidak, isi lamanya akan hilang!
+- Jangan pernah menjelaskan tentang format JSON atau blok <<<ACTION>>> kepada pengguna.
+- Eksekusi secara diam-diam. Balas kalimat seperti: "Siapp, sudah aku tambahkan ke catatan Kotoba ya! 😊" lalu sertakan JSON di bagian paling bawah.`;
 
             try {
                 const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -4951,20 +4969,32 @@ Penting: HANYA sertakan blok <<<ACTION...ACTION>>> jika ada aksi yang perlu dila
                 const data = await res.json();
                 const rawReply = data.choices?.[0]?.message?.content || 'Maaf, tidak ada respons dari AI.';
 
-                // Extract action block
+                // Extract action block (Try tags first, then fallback to raw JSON detection)
+                let action = null;
+                let displayText = rawReply;
+
                 const actionMatch = rawReply.match(/<<<ACTION\s*([\s\S]*?)\s*ACTION>>>/);
-                const displayText = rawReply.replace(/<<<ACTION[\s\S]*?ACTION>>>/g, '').trim();
+                if (actionMatch) {
+                    try {
+                        action = JSON.parse(actionMatch[1].trim());
+                        displayText = rawReply.replace(/<<<ACTION[\s\S]*?ACTION>>>/g, '').trim();
+                    } catch (e) { console.warn('JSON parse error (tags):', e); }
+                } else {
+                    // Fallback: Check if response starts/ends with { } and is valid JSON
+                    const jsonRegex = /^\s*\{[\s\S]*\}\s*$/;
+                    if (jsonRegex.test(rawReply)) {
+                        try {
+                            action = JSON.parse(rawReply.trim());
+                            displayText = ""; // It's just a raw command
+                        } catch (e) { /* Not actually raw JSON */ }
+                    }
+                }
 
                 if (displayText) appendAiMessage('assistant', displayText);
                 aiHistory.push({ role: 'assistant', content: rawReply });
 
-                if (actionMatch) {
-                    try {
-                        const action = JSON.parse(actionMatch[1].trim());
-                        await executeAiAction(action);
-                    } catch (e) {
-                        console.warn('Failed to parse AI action:', e);
-                    }
+                if (action) {
+                    await executeAiAction(action);
                 }
             } catch (err) {
                 appendAiMessage('assistant', 'Gagal terhubung ke AI. Cek koneksi internet ya!');
