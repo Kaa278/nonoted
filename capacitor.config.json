@@ -1,6 +1,6 @@
 {
-  "appId": "com.kaa.nototed",
-  "appName": "Nototed",
+  "appId": "com.kaa.nonoted",
+  "appName": "Nonoted",
   "webDir": "www",
   "server": {
     "url": "https://nonoted.vercel.app",

@@ -214,6 +214,11 @@
                         <i data-lucide="moon" class="h-5 w-5 hidden dark:block"></i>
                         <i data-lucide="sun" class="h-5 w-5 block dark:hidden"></i>
                     </button>
+                    <button id="btnToggleLocked"
+                        class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        title="Tampilkan/Sembunyikan Catatan Terkunci">
+                        <i id="iconLockedVisibility" data-lucide="eye" class="h-5 w-5"></i>
+                    </button>
                     <button id="btnExport"
                         class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="Export">
@@ -344,16 +349,33 @@
                 <input id="noteTitle" type="text" placeholder="Judul" oninput="this.value = this.value.toUpperCase()"
                     class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors font-bold text-lg text-slate-800 dark:text-slate-100 uppercase" />
                 <input id="noteTag" type="text" placeholder="Tag"
-                    class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm font-semibold uppercase tracking-wide text-slate-500" />
+                    class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm font-semibold tracking-wide text-slate-500" />
                 <textarea id="noteText" rows="6" placeholder="Tulis sesuatu..."
                     class="w-full p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors resize-none text-slate-700 dark:text-slate-200"></textarea>
 
+                <!-- Live Preview (Add) -->
+                <div id="notePreviewContainer" class="hidden flex flex-col mt-2">
+                    <span
+                        class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Live
+                        Preview</span>
+                    <div id="notePreview"
+                        class="w-full p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-300 leading-relaxed overflow-y-auto max-h-40">
+                    </div>
+                </div>
+
                 <div class="flex gap-4 items-center">
-                    <label
+                    <label id="btnPinNew"
                         class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer select-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                         <input id="pinNew" type="checkbox" class="accent-blue-600 h-4 w-4" />
                         <span class="text-sm font-medium text-slate-600 dark:text-slate-400">Pin</span>
                     </label>
+
+                    <button id="btnLockNew" type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer select-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <i id="iconLockNew" data-lucide="lock" class="h-4 w-4 text-slate-400"></i>
+                        <span id="textLockNew"
+                            class="text-sm font-medium text-slate-600 dark:text-slate-400">Kunci</span>
+                    </button>
                     <div class="flex-1"></div>
                     <button id="btnCloseAdd"
                         class="px-4 py-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors">
@@ -629,11 +651,11 @@
         </div>
     </div>
 
-    <!-- Toast -->
+    <!-- Toast (Snackbar) -->
     <div id="toast"
-        class="fixed bottom-6 right-6 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300">
-        <i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-500 dark:text-emerald-600"></i>
-        <span id="toastText" class="text-sm font-medium">Notification</span>
+        class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] bg-slate-900/80 dark:bg-white/80 backdrop-blur-md text-white dark:text-slate-900 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check-circle-2" class="h-5 w-5 text-emerald-400 dark:text-emerald-600"></i>
+        <span id="toastText" class="text-sm font-medium whitespace-nowrap">Notification</span>
     </div>
 
     <!-- Timepicker Modal -->
@@ -744,7 +766,7 @@
                 <input id="editTitle" type="text" placeholder="Judul (opsional)"
                     oninput="this.value = this.value.toUpperCase()"
                     class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors font-bold text-lg text-slate-800 dark:text-slate-100 uppercase" />
-                <textarea id="editText" rows="6"
+                <textarea id="editText" rows="12"
                     class="w-full p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors resize-none text-slate-700 dark:text-slate-200"></textarea>
 
                 <div class="flex gap-4">
@@ -752,6 +774,10 @@
                         <input id="editTag" type="text" placeholder="Tag"
                             class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm" />
                     </div>
+                    <button id="btnLockEdit" type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer select-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <i id="iconLockEdit" data-lucide="lock" class="h-4 w-4 text-slate-400"></i>
+                    </button>
                     <label
                         class="flex items-center gap-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer select-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                         <input id="editPinned" type="checkbox" class="accent-blue-600 h-4 w-4" />
@@ -901,6 +927,148 @@
         </div>
     </div>
 
+    <!-- PIN Entry Modal -->
+    <div id="pinModal" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div id="pinModalContent"
+            class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 transform scale-95 opacity-0 transition-all duration-200">
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Catatan Terkunci</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">Masukkan kode PIN untuk membuka
+                    catatan ini.</p>
+
+                <div class="relative w-full mb-6">
+                    <input id="pinEntryInput" type="password" placeholder="KODE PIN" maxlength="6"
+                        class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-center text-2xl font-bold tracking-[0.5em] focus:ring-2 focus:ring-blue-500 outline-none text-slate-800 dark:text-slate-100" />
+                    <button id="btnTogglePinEntry" type="button"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-3 w-full mb-4">
+                    <button id="btnCancelPin"
+                        class="flex-1 py-3 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold transition-colors">Batal</button>
+                    <button id="btnSubmitPin"
+                        class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">Buka</button>
+                </div>
+                <button id="btnForgotPin"
+                    class="text-sm text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Lupa
+                    PIN?</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot PIN / Recovery Modal -->
+    <div id="forgotPinModal"
+        class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div id="forgotPinModalContent"
+            class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 transform scale-95 opacity-0 transition-all duration-200">
+            <div class="flex flex-col text-center">
+                <div
+                    class="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+                    <i data-lucide="shield-question" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Pemulihan PIN</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">Jawab pertanyaan keamanan di
+                    bawah ini untuk membuka catatan.</p>
+
+                <div class="text-left mb-6">
+                    <label
+                        class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pertanyaan
+                        Keamanan</label>
+                    <div id="recoveryQuestionText"
+                        class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-200">
+                        <!-- Question text inserted via JS -->
+                    </div>
+                </div>
+
+                <input id="recoveryAnswerInput" type="text" placeholder="Jawaban Anda"
+                    class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-center text-lg font-bold focus:border-blue-500 dark:focus:border-blue-500 outline-none mb-6 text-slate-800 dark:text-slate-100 transition-colors" />
+
+                <div class="flex gap-3 w-full">
+                    <button id="btnCancelRecovery"
+                        class="flex-1 py-3 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold transition-colors">Batal</button>
+                    <button id="btnSubmitRecovery"
+                        class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">Verifikasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lock Setup Modal -->
+    <div id="lockSetupModal"
+        class="fixed inset-0 z-[75] hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div id="lockSetupModalContent"
+            class="w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 transform scale-95 opacity-0 transition-all duration-200">
+            <div class="flex flex-col text-center">
+                <div
+                    class="mx-auto w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+                    <i data-lucide="lock" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Pengaturan Kunci</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">Lindungi catatan ini dengan PIN
+                    dan pertanyaan keamanan.</p>
+
+                <div class="flex flex-col gap-4 text-left mb-6">
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">PIN
+                            Kunci</label>
+                        <div class="relative">
+                            <input id="setupPinInput" type="password" placeholder="Set PIN (maks 6)" maxlength="6"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-center text-lg font-bold tracking-[0.2em] focus:border-blue-500 dark:focus:border-blue-500 outline-none text-slate-800 dark:text-slate-100 transition-colors" />
+                            <button id="btnToggleSetupPin" type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Pertanyaan
+                            Keamanan</label>
+                        <select id="setupSecQuestionSelect"
+                            class="w-full px-3 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-sm font-medium text-slate-700 dark:text-slate-200">
+                            <option value="" disabled selected>Pilih Pertanyaan Keamanan</option>
+                            <option value="q1">Siapa nama hewan peliharaan pertama Anda?</option>
+                            <option value="q2">Siapa nama ibu Anda?</option>
+                            <option value="q3">Siapa nama ayah Anda?</option>
+                            <option value="q4">Siapa pahlawan masa kecil Anda?</option>
+                            <option value="q5">Apa makanan favorit Anda saat kecil?</option>
+                            <option value="q6">Siapa nama teman masa kecil Anda?</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Jawaban
+                            (Untuk Lupa PIN)</label>
+                        <input id="setupSecAnswerInput" type="text" placeholder="Jawaban Keamanan"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-500 outline-none text-slate-800 dark:text-slate-100 transition-colors text-sm font-medium" />
+                    </div>
+                </div>
+
+                <div class="flex gap-2 w-full flex-col">
+                    <div class="flex gap-3 w-full">
+                        <button id="btnCancelLockSetup"
+                            class="flex-1 py-3 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold transition-colors bg-slate-100 dark:bg-slate-800 rounded-xl">Batal</button>
+                        <button id="btnSaveLockSetup"
+                            class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors">Simpan
+                            Kunci</button>
+                    </div>
+                    <button id="btnRemoveLockSetup"
+                        class="w-full py-3 mt-1 text-red-500 hover:text-red-600 dark:hover:text-red-400 font-medium transition-colors hidden">Hapus
+                        Kunci</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============ State ============
         const STORAGE_KEY = "modern_notes_v2";
@@ -910,6 +1078,7 @@
         let tasks = [];
         let currentFilter = "all";
         let currentMode = "notes"; // 'notes' or 'tasks'
+        let showLockedNotes = localStorage.getItem('showLockedNotes') !== 'false'; // Default to true
 
         const $ = (id) => document.getElementById(id);
         const els = {
@@ -926,12 +1095,15 @@
             searchDropdown: $("searchDropdown"),
             searchDropdownList: $("searchDropdownList"),
             themeToggle: $("themeToggle"),
+            btnToggleLocked: $("btnToggleLocked"),
+            iconLockedVisibility: $("iconLockedVisibility"),
             btnExport: $("btnExport"),
             toast: $("toast"),
             toastText: $("toastText"),
             editModal: $("editModal"),
-            modalContent: $("modalContent"),
-            btnCloseModal: $("btnCloseModal"),
+            modalContent: $("modalContent"), // For Edit modal
+            btnCloseModal: $("btnCloseModal"), // For Edit modal
+            editModalContent: $("editModalContent") || $("modalContent"),
             editTitle: $("editTitle"),
             editText: $("editText"),
             editTag: $("editTag"),
@@ -946,6 +1118,8 @@
             addModal: $("addModal"),
             addModalContent: $("addModalContent"),
             btnCloseAdd: $("btnCloseAdd"),
+            notePreviewContainer: $("notePreviewContainer"),
+            notePreview: $("notePreview"),
             // Add Task Modal
             addTaskModal: $("addTaskModal"),
             addTaskModalContent: $("addTaskModalContent"),
@@ -1017,9 +1191,98 @@
             logoutModalContent: $("logoutModalContent"),
             btnCancelLogout: $("btnCancelLogout"),
             btnConfirmLogout: $("btnConfirmLogout"),
+            // Lock Feature
+            isLockedNew: $("isLockedNew"),
+            notePinNew: $("notePinNew"),
+            pinInputContainerNew: $("pinInputContainerNew"),
+            editIsLocked: $("editIsLocked"),
+            editPin: $("editPin"),
+            editPinContainer: $("editPinContainer"),
+            pinModal: $("pinModal"),
+            pinModalContent: $("pinModalContent"),
+            pinEntryInput: $("pinEntryInput"),
+            btnCancelPin: $("btnCancelPin"),
+            btnSubmitPin: $("btnSubmitPin"),
+            btnForgotPin: $("btnForgotPin"),
+            btnTogglePinEntry: $("btnTogglePinEntry"),
+            // Lock Setup Modal
+            btnLockNew: $("btnLockNew"),
+            iconLockNew: $("iconLockNew"),
+            textLockNew: $("textLockNew"),
+            btnLockEdit: $("btnLockEdit"),
+            iconLockEdit: $("iconLockEdit"),
+            lockSetupModal: $("lockSetupModal"),
+            lockSetupModalContent: $("lockSetupModalContent"),
+            setupPinInput: $("setupPinInput"),
+            setupSecQuestionSelect: $("setupSecQuestionSelect"),
+            setupSecAnswerInput: $("setupSecAnswerInput"),
+            btnCancelLockSetup: $("btnCancelLockSetup"),
+            btnSaveLockSetup: $("btnSaveLockSetup"),
+            btnRemoveLockSetup: $("btnRemoveLockSetup"),
+            btnToggleSetupPin: $("btnToggleSetupPin"),
+            // Forgot PIN Modal
+            forgotPinModal: $("forgotPinModal"),
+            forgotPinModalContent: $("forgotPinModalContent"),
+            recoveryQuestionText: $("recoveryQuestionText"),
+            recoveryAnswerInput: $("recoveryAnswerInput"),
+            btnCancelRecovery: $("btnCancelRecovery"),
+            btnSubmitRecovery: $("btnSubmitRecovery"),
         };
 
         let editingId = null;
+
+        // ============ Helpers ============
+        function enableSmartEditor(textarea) {
+            if (!textarea) return;
+            textarea.addEventListener("keydown", function (e) {
+                if (e.key === "Tab") {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                }
+
+                if (e.key === "Enter") {
+                    const start = this.selectionStart;
+                    const textBefore = this.value.substring(0, start);
+                    const lines = textBefore.split('\n');
+                    const lastLine = lines[lines.length - 1];
+
+                    // Match markdown list patterns: "- ", "* ", "1. ", "• "
+                    const listPattern = /^(\s*([-*•]|(\d+\.))\s+)/;
+                    const match = lastLine.match(listPattern);
+
+                    if (match) {
+                        // If the line is JUST the pattern (e.g. "- "), then Enter should clear it
+                        if (lastLine.trim() === match[2] || lastLine.trim() === match[3]) {
+                            // Clear the line (already handled by default enter if we just don't prevent)
+                            // But we want to remove the pattern from current line first
+                            e.preventDefault();
+                            const newTextBefore = textBefore.substring(0, textBefore.length - lastLine.length);
+                            this.value = newTextBefore + "\n" + this.value.substring(start);
+                            this.selectionStart = this.selectionEnd = newTextBefore.length + 1;
+                        } else {
+                            e.preventDefault();
+                            const prefix = match[1];
+                            // If it's a numbered list, increment
+                            let newPrefix = prefix;
+                            if (match[3]) {
+                                const num = parseInt(match[3]);
+                                newPrefix = prefix.replace(match[3], (num + 1) + ".");
+                            }
+
+                            this.value = textBefore + "\n" + newPrefix + this.value.substring(start);
+                            this.selectionStart = this.selectionEnd = start + 1 + newPrefix.length;
+                        }
+                    }
+                }
+            });
+        }
+
+        // Apply Smart Editor to main textareas
+        enableSmartEditor(els.noteText);
+        enableSmartEditor(els.editText);
 
         // ============ Theme ============
         function initTheme() {
@@ -1043,12 +1306,34 @@
             );
         }
 
-        function showToast(msg) {
+        function showToast(msg, isError = false) {
             els.toastText.textContent = msg;
+
+            // Handle success vs error state
+            const icon = els.toast.querySelector('i');
+            if (icon) {
+                if (isError) {
+                    icon.setAttribute('data-lucide', 'alert-circle');
+                    icon.classList.remove('text-emerald-400', 'dark:text-emerald-600');
+                    icon.classList.add('text-rose-400', 'dark:text-rose-600');
+                    els.toast.classList.add('border-rose-500/50');
+                } else {
+                    icon.setAttribute('data-lucide', 'check-circle-2');
+                    icon.classList.remove('text-rose-400', 'dark:text-rose-600');
+                    icon.classList.add('text-emerald-400', 'dark:text-emerald-600');
+                    els.toast.classList.remove('border-rose-500/50');
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+
             els.toast.classList.remove("translate-y-20", "opacity-0");
-            setTimeout(() => {
+            els.toast.classList.add("translate-y-0", "opacity-100");
+
+            if (window.toastTimeout) clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                els.toast.classList.remove("translate-y-0", "opacity-100");
                 els.toast.classList.add("translate-y-20", "opacity-0");
-            }, 2000);
+            }, 3000);
         }
 
         function escapeHtml(str) {
@@ -1744,8 +2029,26 @@
                 els.addModalContent.classList.remove("scale-95", "opacity-0");
                 els.addModalContent.classList.add("scale-100", "opacity-100");
                 if (els.noteTitle) els.noteTitle.focus();
+                updateNotePreview(); // Initialize preview
             }, 10);
         }
+
+        function updateNotePreview() {
+            const text = els.noteText.value;
+            if (text.trim()) {
+                els.notePreview.innerHTML = parseMarkdown(text);
+                els.notePreviewContainer.classList.remove('hidden');
+            } else {
+                els.notePreviewContainer.classList.add("hidden");
+                els.notePreview.innerHTML = "";
+                els.isLockedNew.checked = false;
+                els.pinInputContainerNew.classList.add("hidden");
+                els.notePinNew.value = "";
+            }
+        }
+
+        // Bind live preview
+        els.noteText.addEventListener('input', updateNotePreview);
 
         // Floating Button Logic
         els.btnOpenAdd.addEventListener("click", () => {
@@ -1783,6 +2086,13 @@
             els.noteTag.value = "";
             els.pinNew.checked = false;
 
+            addLockData = { pin: null, secQuestion: null, secAnswer: null };
+            els.textLockNew.textContent = "Kunci";
+            els.iconLockNew.classList.remove("text-blue-500", "fill-blue-500/20");
+            els.iconLockNew.classList.add("text-slate-400");
+
+            updateNotePreview(); // hide preview
+
             els.addModalContent.classList.remove("scale-100", "opacity-100");
             els.addModalContent.classList.add("scale-95", "opacity-0");
             setTimeout(() => {
@@ -1804,16 +2114,26 @@
         });
 
         async function addNote() {
-            const text = els.noteText.value.trim();
+            const text = els.noteText.value;
             const title = els.noteTitle?.value.trim() || "";
 
             if (!text && !title) return showToast("Kosong?");
 
+            const tag = els.noteTag.value.trim();
+            const pinned = els.pinNew.checked;
+
+            const pin = addLockData.pin;
+            const secQuestion = addLockData.secQuestion;
+            const secAnswer = addLockData.secAnswer;
+
             const newNote = {
                 title,
                 text,
-                tag: els.noteTag.value.trim(),
-                pinned: els.pinNew.checked,
+                tag,
+                pinned,
+                pin,
+                secQuestion,
+                secAnswer,
                 isDraft: false,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
@@ -1833,6 +2153,11 @@
                 els.noteText.value = "";
                 els.noteTag.value = "";
                 els.pinNew.checked = false;
+
+                addLockData = { pin: null, secQuestion: null, secAnswer: null };
+                els.textLockNew.textContent = "Kunci";
+                els.iconLockNew.classList.remove("text-blue-500", "fill-blue-500/20");
+                els.iconLockNew.classList.add("text-slate-400");
 
                 // Close modal
                 els.addModalContent.classList.remove("scale-100", "opacity-100");
@@ -1857,23 +2182,73 @@
         let currentSearchMatchIndex = -1;
         let totalSearchMatches = 0;
 
-        function highlightText(text, query) {
-            if (!query) return escapeHtml(text);
-            const re = new RegExp(
-                `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-                "gi",
-            );
-            return escapeHtml(text).replace(
-                re,
-                '<mark class="search-match bg-yellow-200 dark:bg-yellow-600/50 text-slate-900 dark:text-slate-100 rounded px-0.5 transition-colors">$1</mark>',
-            );
+        function parseMarkdown(text, query = "") {
+            if (!text) return "";
+
+            // 1. Highlight and escape
+            let html;
+            if (query) {
+                const re = new RegExp(
+                    `(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+                    "gi"
+                );
+                html = escapeHtml(text).replace(
+                    re,
+                    '<mark class="search-match bg-yellow-200 dark:bg-yellow-600/50 text-slate-900 dark:text-slate-100 rounded px-0.5 transition-colors">$1</mark>'
+                );
+            } else {
+                html = escapeHtml(text);
+            }
+
+            // 2. Headings, Bold and Italic
+            html = html.replace(/^(?:<mark[^>]*>)?###(?:<\/mark>)? (.*$)/gm, '<h3 class="text-lg font-bold mt-3 mb-1 text-slate-800 dark:text-slate-100">$1</h3>');
+            html = html.replace(/^(?:<mark[^>]*>)?##(?:<\/mark>)? (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2 text-slate-800 dark:text-slate-100">$1</h2>');
+            html = html.replace(/^(?:<mark[^>]*>)?#(?:<\/mark>)? (.*$)/gm, '<h1 class="text-2xl font-bold mt-5 mb-3 text-slate-800 dark:text-slate-100">$1</h1>');
+
+            html = html.replace(/\*\*([^\n]+?)\*\*/g, '<strong class="font-bold text-slate-800 dark:text-slate-100">$1</strong>');
+            html = html.replace(/\*([^\n]+?)\*/g, '<strong class="font-bold text-slate-800 dark:text-slate-100">$1</strong>');
+            html = html.replace(/__([^\n]+?)__/g, '<u class="underline">$1</u>');
+            html = html.replace(/_([^\n]+?)_/g, '<em class="italic">$1</em>');
+
+            // 3. Lists and newlines
+            const lines = html.split('\n');
+            let result = '';
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                const rawMatch = line.replace(/<[^>]*>/g, '').match(/^(\s*)([-*])\s+(.*)$/);
+
+                if (rawMatch) {
+                    const htmlMatch = line.match(/^(\s*)(?:<mark[^>]*>)?([-*])(?:<\/mark>)?\s+(.*)$/);
+                    if (htmlMatch) {
+                        let ind = htmlMatch[1].replace(/\t/g, '    ').length;
+                        result += `<div class="flex items-start gap-2 my-1" style="margin-left: ${ind * 12}px">
+                            <span class="mt-2 h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-500 flex-shrink-0"></span>
+                            <span class="flex-1">${htmlMatch[3]}</span>
+                        </div>`;
+                    } else {
+                        result += line;
+                        if (i < lines.length - 1) result += '<br>';
+                    }
+                } else {
+                    result += line;
+                    if (i < lines.length - 1 && !line.match(/^<h[1-3]/)) {
+                        result += '<br>';
+                    }
+                }
+            }
+            return result;
         }
 
         let currentViewId = null;
 
-        function openView(id) {
-            const n = notes.find((x) => x.id === id);
+        function openView(id, unlocked = false) {
+            const n = notes.find((n) => n.id === id);
             if (!n) return;
+
+            if (n.pin && !unlocked) {
+                return openPinModal('view', id);
+            }
 
             currentViewId = id;
             const q = lastSearchQuery;
@@ -1962,14 +2337,7 @@
         }
 
         function renderViewText(text, query) {
-            if (query) {
-                els.viewText.innerHTML = highlightText(text, query).replace(
-                    /\n/g,
-                    "<br>",
-                );
-            } else {
-                els.viewText.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
-            }
+            els.viewText.innerHTML = parseMarkdown(text, query);
         }
 
         function closeView() {
@@ -1982,8 +2350,232 @@
             }, 200);
         }
 
+        // ============ Lock Setup (Add & Edit) ============
+        let currentLockTarget = null; // 'add' or 'edit'
+        let addLockData = { pin: null, secQuestion: null, secAnswer: null };
+        let editLockData = { pin: null, secQuestion: null, secAnswer: null };
+
+        function openLockSetupModal(target) {
+            currentLockTarget = target;
+            const data = (target === 'add') ? addLockData : editLockData;
+
+            els.setupPinInput.value = data.pin || "";
+            els.setupSecQuestionSelect.value = data.secQuestion || "";
+            els.setupSecAnswerInput.value = data.secAnswer || ""; // show raw answer if we stored it that way
+
+            if (data.pin) {
+                els.btnRemoveLockSetup.classList.remove("hidden");
+            } else {
+                els.btnRemoveLockSetup.classList.add("hidden");
+            }
+
+            els.lockSetupModal.classList.remove("hidden");
+            els.lockSetupModal.classList.add("flex");
+            setTimeout(() => {
+                els.lockSetupModalContent.classList.remove("scale-95", "opacity-0");
+                els.lockSetupModalContent.classList.add("scale-100", "opacity-100");
+                els.setupPinInput.focus();
+            }, 10);
+        }
+
+        function closeLockSetupModal() {
+            els.lockSetupModalContent.classList.remove("scale-100", "opacity-100");
+            els.lockSetupModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.lockSetupModal.classList.add("hidden");
+                els.lockSetupModal.classList.remove("flex");
+                currentLockTarget = null;
+            }, 200);
+        }
+
+        function saveLockSetup() {
+            const pin = els.setupPinInput.value.trim();
+            const secQuestion = els.setupSecQuestionSelect.value;
+            const secAnswer = els.setupSecAnswerInput.value.trim();
+
+            if (!pin) {
+                showToast("PIN tidak boleh kosong", true);
+                return;
+            }
+            if (!secQuestion || secQuestion === "" || !secAnswer) {
+                showToast("Pilih pertanyaan keamanan dan masukkan jawaban!", true);
+                return;
+            }
+
+            const data = { pin, secQuestion, secAnswer };
+
+            if (currentLockTarget === 'add') {
+                addLockData = data;
+                els.textLockNew.textContent = "Terkunci";
+                els.iconLockNew.classList.add("text-blue-500", "fill-blue-500/20");
+                els.iconLockNew.classList.remove("text-slate-400");
+            } else if (currentLockTarget === 'edit') {
+                editLockData = { pin, secQuestion, secAnswer: secAnswer.toLowerCase() };
+                els.iconLockEdit.classList.add("text-blue-500", "fill-blue-500/20");
+                els.iconLockEdit.classList.remove("text-slate-400");
+            }
+
+            closeLockSetupModal();
+        }
+
+        function removeLockSetup() {
+            if (currentLockTarget === 'add') {
+                addLockData = { pin: null, secQuestion: null, secAnswer: null };
+                els.textLockNew.textContent = "Kunci";
+                els.iconLockNew.classList.remove("text-blue-500", "fill-blue-500/20");
+                els.iconLockNew.classList.add("text-slate-400");
+            } else if (currentLockTarget === 'edit') {
+                editLockData = { pin: null, secQuestion: null, secAnswer: null };
+                els.iconLockEdit.classList.remove("text-blue-500", "fill-blue-500/20");
+                els.iconLockEdit.classList.add("text-slate-400");
+            }
+
+            closeLockSetupModal();
+        }
+
+        els.btnLockNew.addEventListener('click', () => openLockSetupModal('add'));
+        els.btnLockEdit.addEventListener('click', () => openLockSetupModal('edit'));
+        els.btnCancelLockSetup.addEventListener('click', closeLockSetupModal);
+        els.btnSaveLockSetup.addEventListener('click', saveLockSetup);
+        els.btnRemoveLockSetup.addEventListener('click', removeLockSetup);
+
+        function togglePasswordVisibility(input, btn) {
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            btn.innerHTML = isPassword ? '<i data-lucide="eye-off" class="w-5 h-5"></i>' : '<i data-lucide="eye" class="w-5 h-5"></i>';
+            lucide.createIcons();
+        }
+
+        els.btnTogglePinEntry?.addEventListener("click", () => togglePasswordVisibility(els.pinEntryInput, els.btnTogglePinEntry));
+        els.btnToggleSetupPin?.addEventListener("click", () => togglePasswordVisibility(els.setupPinInput, els.btnToggleSetupPin));
+
+        // ============ Forgot PIN Recovery ============
+        const securityQuestionsMap = {
+            "q1": "Siapa nama hewan peliharaan pertama Anda?",
+            "q2": "Siapa nama ibu Anda?",
+            "q3": "Siapa nama ayah Anda?",
+            "q4": "Siapa pahlawan masa kecil Anda?",
+            "q5": "Apa makanan favorit Anda saat kecil?",
+            "q6": "Siapa nama teman masa kecil Anda?"
+        };
+
+        function openForgotPinModal() {
+            if (!pendingAction) return;
+            const note = notes.find(n => n.id === pendingAction.id);
+            if (!note || !note.secQuestion) {
+                showToast("Catatan ini tidak memiliki pertanyaan keamanan.", true);
+                return;
+            }
+
+            // Hide PIN Modal smoothly
+            els.pinModalContent.classList.remove("scale-100", "opacity-100");
+            els.pinModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.pinModal.classList.add("hidden");
+                els.pinModal.classList.remove("flex");
+
+                // Show Forgot PIN Modal
+                els.recoveryQuestionText.textContent = securityQuestionsMap[note.secQuestion] || "Pertanyaan Keamanan?";
+                els.recoveryAnswerInput.value = "";
+
+                els.forgotPinModal.classList.remove("hidden");
+                els.forgotPinModal.classList.add("flex");
+                setTimeout(() => {
+                    els.forgotPinModalContent.classList.remove("scale-95", "opacity-0");
+                    els.forgotPinModalContent.classList.add("scale-100", "opacity-100");
+                    els.recoveryAnswerInput.focus();
+                }, 10);
+            }, 200);
+        }
+
+        function closeForgotPinModal() {
+            els.forgotPinModalContent.classList.remove("scale-100", "opacity-100");
+            els.forgotPinModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.forgotPinModal.classList.add("hidden");
+                els.forgotPinModal.classList.remove("flex");
+                pendingAction = null;
+            }, 200);
+        }
+
+        function verifySecurityAnswer() {
+            if (!pendingAction) return;
+            const note = notes.find(n => n.id === pendingAction.id);
+            if (!note) return closeForgotPinModal();
+
+            const enteredAnswer = els.recoveryAnswerInput.value.trim().toLowerCase();
+            if (enteredAnswer === note.secAnswer) {
+                const { type, id } = pendingAction;
+                closeForgotPinModal();
+                showToast("PIN berhasil dilewati!");
+                if (type === 'view') openView(id, true);
+                else if (type === 'edit') openEdit(id, true);
+                else if (type === 'popout') popOutNote(id, true);
+            } else {
+                showToast("Jawaban salah!", true);
+                els.recoveryAnswerInput.value = "";
+                els.recoveryAnswerInput.focus();
+            }
+        }
+
+        els.btnForgotPin.onclick = openForgotPinModal;
+        els.btnCancelRecovery.onclick = closeForgotPinModal;
+        els.btnSubmitRecovery.onclick = verifySecurityAnswer;
+        els.recoveryAnswerInput.onkeydown = (e) => {
+            if (e.key === "Enter") verifySecurityAnswer();
+        };
+
         // ============ Task View Modal ============
         let currentTaskViewId = null;
+
+        let pendingAction = null; // { type: 'view'|'edit'|'popout', id: string }
+
+        function openPinModal(type, id) {
+            pendingAction = { type, id };
+            els.pinModal.classList.remove("hidden");
+            els.pinModal.classList.add("flex");
+            els.pinEntryInput.value = "";
+            setTimeout(() => {
+                els.pinModalContent.classList.remove("scale-95", "opacity-0");
+                els.pinModalContent.classList.add("scale-100", "opacity-100");
+                els.pinEntryInput.focus();
+            }, 10);
+        }
+
+        function closePinModal() {
+            els.pinModalContent.classList.remove("scale-100", "opacity-100");
+            els.pinModalContent.classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                els.pinModal.classList.add("hidden");
+                els.pinModal.classList.remove("flex");
+                pendingAction = null;
+            }, 200);
+        }
+
+        async function verifyPin() {
+            if (!pendingAction) return;
+            const note = notes.find(n => n.id === pendingAction.id);
+            if (!note) return closePinModal();
+
+            const enteredPin = els.pinEntryInput.value;
+            if (enteredPin === note.pin) {
+                const { type, id } = pendingAction;
+                closePinModal();
+                if (type === 'view') openView(id, true);
+                else if (type === 'edit') openEdit(id, true);
+                else if (type === 'popout') popOutNote(id, true);
+            } else {
+                showToast("PIN Salah!", true);
+                els.pinEntryInput.value = "";
+                els.pinEntryInput.focus();
+            }
+        }
+
+        els.btnSubmitPin.onclick = verifyPin;
+        els.btnCancelPin.onclick = closePinModal;
+        els.pinEntryInput.onkeydown = (e) => {
+            if (e.key === "Enter") verifyPin();
+        };
 
         window.openTaskView = function (id) {
             const t = tasks.find((x) => x.id === id);
@@ -2137,9 +2729,13 @@
             }
         };
 
-        function popOutNote(id) {
-            const n = notes.find((x) => x.id === id);
+        function popOutNote(id, unlocked = false) {
+            const n = notes.find((n) => n.id === id);
             if (!n) return;
+
+            if (n.pin && !unlocked) {
+                return openPinModal('popout', id);
+            }
 
             const w = window.open(
                 "",
@@ -2219,6 +2815,26 @@
                     outline: none;
                     font-family: inherit;
                     box-sizing: border-box;
+                }
+                .preview-container {
+                    flex: 1;
+                    padding: 1rem;
+                    background: ${inputBg};
+                    border-top: 1px solid ${border};
+                    color: ${fg};
+                    overflow-y: auto;
+                    font-size: 0.875rem;
+                    line-height: 1.6;
+                    display: none;
+                }
+                .preview-container.active {
+                    display: block;
+                }
+                .split-view {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    overflow: hidden;
                 }
                 .footer {
                     padding: 0.75rem 1rem;
@@ -2302,11 +2918,81 @@
 
             container.appendChild(header);
 
+            // Split View Container
+            const splitView = w.document.createElement("div");
+            splitView.className = "split-view";
+
             // Body
             const textarea = w.document.createElement("textarea");
             textarea.value = text;
             textarea.placeholder = "Tulis sesuatu...";
-            container.appendChild(textarea);
+
+            textarea.addEventListener("keydown", function (e) {
+                if (e.key === "Tab") {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 1;
+                }
+            });
+
+            // Preview pane
+            const preview = w.document.createElement("div");
+            preview.className = "preview-container";
+
+            // Re-implement parser briefly for the popout
+            function parseMarkdownLocal(txt) {
+                if (!txt) return "";
+                let html = txt.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                html = html.replace(/^### (.*$)/gm, '<h3 style="font-size:1.125rem; font-weight:bold; margin-top:12px; margin-bottom:4px;">$1</h3>');
+                html = html.replace(/^## (.*$)/gm, '<h2 style="font-size:1.25rem; font-weight:bold; margin-top:16px; margin-bottom:8px;">$1</h2>');
+                html = html.replace(/^# (.*$)/gm, '<h1 style="font-size:1.5rem; font-weight:bold; margin-top:20px; margin-bottom:12px;">$1</h1>');
+
+                html = html.replace(/\*\*([^\n]+?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*([^\n]+?)\*/g, '<strong>$1</strong>');
+                html = html.replace(/__([^\n]+?)__/g, '<u>$1</u>');
+                html = html.replace(/_([^\n]+?)_/g, '<em>$1</em>');
+
+                const lines = html.split('\\n');
+                let result = '';
+                for (let i = 0; i < lines.length; i++) {
+                    let line = lines[i];
+                    const rawMatch = line.replace(/<[^>]*>/g, '').match(/^(\\s*)([-*])\\s+(.*)$/);
+                    if (rawMatch) {
+                        const htmlMatch = line.match(/^(\s*)(?:<mark[^>]*>)?([-*])(?:<\/mark>)?\s+(.*)$/);
+                        if (htmlMatch) {
+                            let ind = htmlMatch[1].replace(/\t/g, '    ').length;
+                            result += `<div style="display: flex; gap: 8px; margin: 4px 0; margin-left: ${ind * 12}px;">
+                                <span style="margin-top: 8px; height: 6px; width: 6px; border-radius: 50%; background-color: currentColor; flex-shrink: 0;"></span>
+                                <span style="flex: 1;">${htmlMatch[3]}</span>
+                            </div>`;
+                            continue;
+                        }
+                    }
+                    result += line;
+                    if (i < lines.length - 1 && !line.match(/^<h[1-3]/)) result += '<br>';
+                }
+                return result;
+            }
+
+            const updatePreview = () => {
+                const val = textarea.value;
+                if (val.trim()) {
+                    preview.innerHTML = '<div style="font-size:0.75rem; text-transform:uppercase; opacity:0.5; margin-bottom:8px; font-weight:bold;">Live Preview</div>' + parseMarkdownLocal(val);
+                    preview.classList.add('active');
+                } else {
+                    preview.classList.remove('active');
+                    preview.innerHTML = '';
+                }
+            };
+
+            textarea.addEventListener('input', updatePreview);
+            updatePreview();
+
+            splitView.appendChild(textarea);
+            splitView.appendChild(preview);
+            container.appendChild(splitView);
 
             // Footer
             const footer = w.document.createElement("div");
@@ -2331,17 +3017,28 @@
                 toast.style.backgroundColor = isError
                     ? "#ef4444"
                     : isDark
-                        ? "#f8fafc"
-                        : "#0f172a";
+                        ? "rgba(255, 255, 255, 0.8)"
+                        : "rgba(15, 23, 42, 0.8)";
                 toast.style.color = isError
                     ? "white"
                     : isDark
                         ? "#0f172a"
                         : "#f8fafc";
+                toast.style.backdropFilter = "blur(12px)";
+                toast.style.borderRadius = "9999px";
+                toast.style.padding = "12px 24px";
+                toast.style.left = "50%";
+                toast.style.transform = "translateX(-50%) translateY(0)";
+                toast.style.bottom = "40px";
+                toast.style.position = "fixed";
+                toast.style.whiteSpace = "nowrap";
+                toast.style.boxShadow = "0 25px 50px -12px rgb(0 0 0 / 0.25)";
+                toast.style.zIndex = "1000";
+
                 toast.classList.add("show");
                 setTimeout(() => {
                     toast.classList.remove("show");
-                }, 2000);
+                }, 2500);
             };
 
             // Logic
@@ -2593,7 +3290,7 @@
             const result = await window.loginUser(email, password);
 
             if (result.success) {
-                showToast(`Selamat datang, ${result.user.email}!`);
+                showToast(`Selamat datang, ${result.user.email} !`);
                 closeAuthModal();
                 // Reload notes for the logged-in user
                 await loadNotes();
@@ -2644,7 +3341,7 @@
             const result = await window.registerUser(name, email, password);
 
             if (result.success) {
-                showToast(`Akun berhasil dibuat! Selamat datang, ${name}!`);
+                showToast(`Akun berhasil dibuat! Selamat datang, ${name} !`);
                 closeAuthModal();
                 // Reload notes + migrate guest notes to new account
                 await loadNotes();
@@ -2668,14 +3365,28 @@
         }
 
         // ============ Edit Modal ============
-        function openEdit(id) {
-            const n = notes.find((x) => x.id === id);
+        function openEdit(id, unlocked = false) {
+            const n = notes.find((n) => n.id === id);
             if (!n) return;
+
+            if (n.pin && !unlocked) {
+                return openPinModal('edit', id);
+            }
+
             editingId = id;
             if (els.editTitle) els.editTitle.value = n.title || "";
             els.editText.value = n.text;
             els.editTag.value = n.tag || "";
             els.editPinned.checked = n.pinned;
+
+            editLockData = { pin: n.pin || null, secQuestion: n.secQuestion || null, secAnswer: n.secAnswer || null };
+            if (n.pin) {
+                els.iconLockEdit.classList.add("text-blue-500", "fill-blue-500/20");
+                els.iconLockEdit.classList.remove("text-slate-400");
+            } else {
+                els.iconLockEdit.classList.remove("text-blue-500", "fill-blue-500/20");
+                els.iconLockEdit.classList.add("text-slate-400");
+            }
 
             els.editModal.classList.remove("hidden");
             els.editModal.classList.add("flex");
@@ -2683,47 +3394,71 @@
             setTimeout(() => {
                 els.modalContent.classList.remove("scale-95", "opacity-0");
                 els.modalContent.classList.add("scale-100", "opacity-100");
+                els.editText.focus();
             }, 10);
         }
 
+        // Bind smart editor logic for edit
+        // (Handled by enableSmartEditor already initialized at top)
+
         function closeEdit() {
-            els.modalContent.classList.remove("scale-100", "opacity-100");
-            els.modalContent.classList.add("scale-95", "opacity-0");
+            els.editModalContent.classList.remove("scale-100", "opacity-100");
+            els.editModalContent.classList.add("scale-95", "opacity-0");
             setTimeout(() => {
                 els.editModal.classList.add("hidden");
                 els.editModal.classList.remove("flex");
                 editingId = null;
+                editLockData = { pin: null, secQuestion: null, secAnswer: null };
+                els.iconLockEdit.classList.remove("text-blue-500", "fill-blue-500/20");
+                els.iconLockEdit.classList.add("text-slate-400");
             }, 200);
         }
 
         async function saveEdit() {
             if (!editingId) return;
-            const n = notes.find((n) => n.id === editingId);
-            if (n) {
-                try {
-                    // Update local object
-                    if (els.editTitle) n.title = els.editTitle.value.trim();
-                    n.text = els.editText.value.trim();
-                    n.tag = els.editTag.value.trim();
-                    n.pinned = els.editPinned.checked;
-                    n.isDraft = false; // Mark as active when saved
-                    n.updatedAt = Date.now();
+            const text = els.editText.value;
+            const title = els.editTitle ? els.editTitle.value.trim() : "";
+            const tag = els.editTag.value.trim();
+            const pinned = els.editPinned.checked;
 
-                    // Save to Firestore
-                    await window.saveNoteToFirestore(n);
+            const pin = editLockData.pin;
+            const secQuestion = editLockData.secQuestion;
+            const secAnswer = editLockData.secAnswer;
 
-                    saveNotes();
-                    closeEdit();
-                    showToast("Perubahan disimpan");
+            try {
+                const note = notes.find((n) => n.id === editingId);
+                if (!note) return;
 
-                    // Switch from drafts to all if currently viewing drafts
-                    if (currentFilter === "drafts") {
-                        filterNotes("all");
-                    }
-                } catch (error) {
-                    console.error("Error saving edit:", error);
-                    showToast("Gagal menyimpan");
+                const updatedNote = {
+                    ...note,
+                    title,
+                    text,
+                    tag,
+                    pinned,
+                    pin,
+                    secQuestion,
+                    secAnswer,
+                    isDraft: false,
+                    updatedAt: Date.now()
+                };
+
+                await window.saveNoteToFirestore(updatedNote);
+
+                const index = notes.findIndex((n) => n.id === editingId);
+                if (index !== -1) {
+                    notes[index] = updatedNote;
                 }
+
+                saveNotes();
+                closeEdit();
+                showToast("Perubahan disimpan");
+
+                if (currentFilter === "drafts") {
+                    filterNotes("all");
+                }
+            } catch (error) {
+                console.error("Error saving edit:", error);
+                showToast("Gagal menyimpan");
             }
         }
 
@@ -2736,11 +3471,11 @@
             const html = Array.from(tags)
                 .map(
                     (tag) => `
-        <button onclick="filterNotes('tag:${tag}')" 
-          class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${currentFilter === "tag:" + tag ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" : ""}">
-          <span class="truncate"># ${escapeHtml(tag)}</span>
-        </button>
-      `,
+                        <button onclick="filterNotes('tag:${tag}')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${currentFilter === "tag:" + tag ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-200" : ""}">
+                            <span class="truncate"># ${escapeHtml(tag)}</span>
+                        </button>
+                    `,
                 )
                 .join("");
             els.tagsList.innerHTML = html;
@@ -2770,18 +3505,18 @@
             els.navAll.className = `${btnClass} ${type === "all"
                 ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`;
+                } `;
 
             els.navPinned.className = `${btnClass} ${type === "pinned"
                 ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`;
+                } `;
 
             if (els.navDrafts) {
                 els.navDrafts.className = `${btnClass} ${type === "drafts"
                     ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                    }`;
+                    } `;
             }
 
             if (els.navTasks) {
@@ -2797,6 +3532,11 @@
         function getFiltered() {
             let filtered = [...notes];
             const q = els.searchInput.value.toLowerCase();
+
+            // Apply global lock toggle
+            if (!showLockedNotes) {
+                filtered = filtered.filter(n => !n.pin);
+            }
 
             // Search
             if (q) {
@@ -2842,7 +3582,7 @@
             }
         }
 
-        function exportJSON() {
+        function exportNotesJSON() {
             const blob = new Blob([JSON.stringify(notes, null, 2)], {
                 type: "application/json",
             });
@@ -2897,7 +3637,7 @@
             const progressPercent =
                 total === 0 ? 0 : Math.round((completedCount / total) * 100);
 
-            els.taskProgressText.textContent = `${completedCount} / ${total} completed`;
+            els.taskProgressText.textContent = `${completedCount}/${total} completed`;
             els.taskProgressBar.style.width = `${progressPercent}%`;
 
             // Filter Tasks
@@ -3176,9 +3916,15 @@
             els.notesGrid.innerHTML = arr
                 .map((n) => {
                     const safeTitle = escapeHtml(n.title);
-                    const safeText = escapeHtml(n.text).replace(/\n/g, "<br>");
+                    const isLocked = !!n.pin;
+                    const safeText = isLocked
+                        ? `<div class="flex flex-col items-center justify-center bg-white/30 dark:bg-slate-900/30 backdrop-blur-md rounded-2xl z-10 h-32 w-full">
+                             <i data-lucide="lock" class="h-32 w-32 text-slate-300/80 dark:text-slate-600/80 drop-shadow-md"></i>
+                           </div>`
+                        : parseMarkdown(n.text);
+
                     const badge = n.tag
-                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 uppercase tracking-wide">
+                        ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 tracking-wide">
              ${escapeHtml(n.tag)}
              </span>`
                         : "";
@@ -3190,6 +3936,9 @@
                     </span>`
                         : "";
 
+                    const lockIcon = isLocked ? '<i data-lucide="lock" class="h-3.5 w-3.5 text-amber-500 fill-amber-500/10 mr-2"></i>' : "";
+                    const pinIcon = n.pinned ? '<i data-lucide="pin" class="h-3.5 w-3.5 text-blue-500 fill-blue-500/20"></i>' : "";
+
                     return `
           <div onclick="openView('${n.id}')" class="cursor-pointer group relative flex flex-col justify-between p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 h-full">
             
@@ -3199,16 +3948,21 @@
                     ${badge}
                     ${draftBadge}
                 </div>
-                ${n.pinned ? '<i data-lucide="pin" class="h-3.5 w-3.5 text-blue-500 fill-blue-500/20"></i>' : "<div></div>"}
+                <div class="flex items-center">
+                    ${lockIcon}
+                    ${pinIcon}
+                </div>
               </div>
 
-              ${safeTitle ? `<h3 class="font-bold text-lg mb-1 text-slate-800 dark:text-slate-100 break-words">${safeTitle}</h3>` : ""}
-              
-              <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed break-words line-clamp-6">${safeText}</p>
+              ${safeTitle ? `<h3 class="font-bold text-lg mb-1 text-slate-800 dark:text-slate-100 break-words ${isLocked ? 'blur-[3px] select-none' : ''}">${safeTitle}</h3>` : ""}
+              <div class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed break-words relative overflow-hidden" style="max-height: 9rem;">
+                  ${safeText}
+                  ${isLocked ? '' : '<div class="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none"></div>'}
+              </div>
             </div>
 
             <div class="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800/50 mt-auto">
-              <span class="text-[10px] font-medium text-slate-400">${formatDate(n.createdAt)}</span>
+              <span class="text-[10px] font-medium text-slate-400 ${isLocked ? 'blur-[2px] select-none' : ''}">${formatDate(n.createdAt)}</span>
               
               <div class="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onclick="event.stopPropagation(); togglePin('${n.id}')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-blue-500 transition-colors">
@@ -3379,7 +4133,34 @@
                     els.searchDropdown.classList.add("hidden");
                 }
             });
-            els.btnExport.addEventListener("click", exportJSON);
+            els.btnExport.addEventListener("click", exportNotesJSON);
+            els.btnToggleLocked?.addEventListener("click", toggleLockedVisibility);
+
+            function toggleLockedVisibility() {
+                showLockedNotes = !showLockedNotes;
+                localStorage.setItem('showLockedNotes', showLockedNotes);
+                updateLockToggleStyle();
+                render();
+                showToast(showLockedNotes ? "Catatan terkunci ditampilkan" : "Catatan terkunci disembunyikan");
+            }
+
+            function updateLockToggleStyle() {
+                if (!els.btnToggleLocked) return;
+                const iconId = showLockedNotes ? 'eye' : 'eye-off';
+                els.btnToggleLocked.innerHTML = `<i data-lucide="${iconId}" class="h-5 w-5"></i>`;
+
+                if (showLockedNotes) {
+                    els.btnToggleLocked.classList.add('bg-blue-50', 'text-blue-600', 'dark:bg-blue-900/20', 'dark:text-blue-400');
+                    els.btnToggleLocked.classList.remove('text-slate-500');
+                } else {
+                    els.btnToggleLocked.classList.remove('bg-blue-50', 'text-blue-600', 'dark:bg-blue-900/20', 'dark:text-blue-400');
+                    els.btnToggleLocked.classList.add('text-slate-500');
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+
+            // Sync icon on init
+            updateLockToggleStyle();
             els.btnCloseModal.addEventListener("click", closeEdit);
             els.btnSaveEdit.addEventListener("click", saveEdit);
 
@@ -3513,6 +4294,8 @@
                 { el: els.editModal, closeFn: closeEdit },
                 { el: els.logoutModal, closeFn: closeLogoutModal },
                 { el: els.viewModal, closeFn: closeView },
+                { el: els.forgotPinModal, closeFn: closeForgotPinModal },
+                { el: els.lockSetupModal, closeFn: closeLockSetupModal },
                 { el: document.getElementById('taskViewModal'), closeFn: window.closeTaskView }
             ].forEach(({ el, closeFn }) => {
                 if (el && typeof closeFn === "function") {
@@ -3631,6 +4414,9 @@
                     title: note.title || "",
                     text: note.text || "",
                     tag: note.tag || "",
+                    pin: note.pin || null,
+                    secQuestion: note.secQuestion || null,
+                    secAnswer: note.secAnswer || null,
                     pinned: note.pinned || false,
                     isDraft: note.isDraft || false,
                     createdAt: note.createdAt || Date.now(),

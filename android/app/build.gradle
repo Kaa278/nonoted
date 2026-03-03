@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.kaa.nototed"
+    namespace "com.kaa.nonoted"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.kaa.nototed"
+        applicationId "com.kaa.nonoted"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

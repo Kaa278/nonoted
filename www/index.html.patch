@@ -1,0 +1,47 @@
+--- /home/kaa/Documents/project/web/nototed/www/index.html
++++ /home/kaa/Documents/project/web/nototed/www/index.html
+@@ -1014,9 +1014,9 @@
+ 
+         <!-- Toast Notification -->
+         <div id="toast"
+-            class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] transform translate-y-full opacity-0 transition-all duration-300 pointer-events-none">
+-            <div class="bg-black/80 dark:bg-white/90 backdrop-blur-md text-white dark:text-slate-900 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 font-medium tracking-wide">
+-                <i data-lucide="check-circle" class="h-4 w-4 text-emerald-400 dark:text-emerald-600"></i>
++            class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] transform translate-y-full opacity-0 transition-all duration-300 ease-out pointer-events-none">
++            <div class="bg-slate-900/80 dark:bg-slate-100/80 backdrop-blur-md text-white dark:text-slate-900 px-[18px] py-1.5 rounded-full shadow-xl flex items-center gap-2 border border-white/10 dark:border-black/10 transition-transform">
++                <i data-lucide="check-circle-2" class="h-4 w-4 text-emerald-400 dark:text-emerald-500"></i>
+                 <span id="toastText" class="text-sm">Tersimpan</span>
+             </div>
+         </div>
+@@ -4107,11 +4107,11 @@
+                 
+                 // Update Icon
+                 if (showLockedNotes) {
+-                    els.btnToggleLocked.classList.remove('text-slate-500', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+-                    els.btnToggleLocked.classList.add('text-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20', 'dark:text-blue-400');
++                    els.btnToggleLocked.classList.remove('text-slate-400', 'dark:text-slate-500');
++                    els.btnToggleLocked.classList.add('text-slate-700', 'dark:text-slate-200', 'bg-slate-200/50', 'dark:bg-slate-700/50');
+                 } else {
+-                    els.btnToggleLocked.classList.remove('text-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20', 'dark:text-blue-400');
+-                    els.btnToggleLocked.classList.add('text-slate-500', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
++                    els.btnToggleLocked.classList.remove('text-slate-700', 'dark:text-slate-200', 'bg-slate-200/50', 'dark:bg-slate-700/50');
++                    els.btnToggleLocked.classList.add('text-slate-400', 'dark:text-slate-500');
+                 }
+ 
+                 if (els.iconLockedVisibility) {
+@@ -4127,11 +4127,11 @@
+ 
+             // Sync icon on init
+             if (showLockedNotes) {
+-                els.btnToggleLocked.classList.remove('text-slate-500', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
+-                els.btnToggleLocked.classList.add('text-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20', 'dark:text-blue-400');
++                els.btnToggleLocked.classList.remove('text-slate-400', 'dark:text-slate-500');
++                els.btnToggleLocked.classList.add('text-slate-700', 'dark:text-slate-200', 'bg-slate-200/50', 'dark:bg-slate-700/50');
+             } else {
+-                els.btnToggleLocked.classList.remove('text-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20', 'dark:text-blue-400');
+-                els.btnToggleLocked.classList.add('text-slate-500', 'hover:bg-slate-100', 'dark:hover:bg-slate-800');
++                els.btnToggleLocked.classList.remove('text-slate-700', 'dark:text-slate-200', 'bg-slate-200/50', 'dark:bg-slate-700/50');
++                els.btnToggleLocked.classList.add('text-slate-400', 'dark:text-slate-500');
+             }
+             if (els.iconLockedVisibility) {
+                 els.iconLockedVisibility.setAttribute('data-lucide', showLockedNotes ? 'eye' : 'eye-off');
