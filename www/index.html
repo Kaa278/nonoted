@@ -4724,6 +4724,262 @@
             });
         }, 10000); // Check every 10 seconds
     </script>
+
+    <!-- ===== AI ASSISTANT ===== -->
+
+    <!-- Floating Button -->
+    <button id="btnAiToggle" onclick="toggleAiPanel()"
+        class="fixed bottom-6 right-6 z-[500] w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 shadow-xl flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-transform duration-200"
+        title="AI Asisten">
+        <i data-lucide="bot" class="h-6 w-6"></i>
+    </button>
+
+    <!-- Chat Panel -->
+    <div id="aiPanel"
+        class="hidden fixed bottom-24 right-4 z-[500] w-[22rem] max-w-[calc(100vw-2rem)] flex flex-col bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+        style="height:480px;">
+
+        <!-- Header -->
+        <div
+            class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-500 to-violet-600 text-white">
+            <div class="flex items-center gap-2">
+                <i data-lucide="bot" class="h-5 w-5"></i>
+                <span class="font-semibold text-sm">AI Asisten</span>
+                <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">OpenRouter</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="clearAiChat()" title="Clear chat"
+                    class="p-1 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+                </button>
+                <button onclick="toggleAiPanel()" class="p-1 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="aiMessages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm"></div>
+
+        <!-- Thinking indicator -->
+        <div id="aiThinking" class="hidden px-4 pb-2">
+            <div class="flex items-center gap-2 text-slate-400 text-xs">
+                <div class="flex gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
+                        style="animation-delay:0ms"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
+                        style="animation-delay:150ms"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
+                        style="animation-delay:300ms"></span>
+                </div>
+                <span>AI sedang berpikir...</span>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="px-3 pb-3">
+            <div class="flex items-end gap-2 bg-slate-100 dark:bg-slate-800 rounded-2xl px-3 py-2">
+                <textarea id="aiInput" rows="1" placeholder="Ketik perintah..."
+                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,96)+'px'"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage();}"
+                    class="flex-1 bg-transparent outline-none resize-none text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 max-h-24 py-0.5"></textarea>
+                <button onclick="sendAiMessage()"
+                    class="shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white hover:opacity-90 active:scale-95 transition-all">
+                    <i data-lucide="send" class="h-4 w-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ AI Assistant ============
+        const OPENROUTER_API_KEY = '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';
+        const AI_MODEL = 'google/gemini-2.0-flash-001';
+        let aiHistory = [];
+        let aiPanelOpen = false;
+
+        function toggleAiPanel() {
+            const panel = document.getElementById('aiPanel');
+            aiPanelOpen = !aiPanelOpen;
+            if (aiPanelOpen) {
+                panel.classList.remove('hidden');
+                panel.classList.add('flex', 'flex-col');
+                if (aiHistory.length === 0) {
+                    appendAiMessage('assistant', 'Halo! Aku AI asisten Nonoted. Kamu bisa minta aku untuk:\n- Tambah catatan baru\n- Cari catatan\n- Update isi catatan\n\nContoh: *"tambah akun google, email: aku@gmail.com, pw: rahasia123"*');
+                }
+                setTimeout(() => document.getElementById('aiInput')?.focus(), 100);
+                lucide.createIcons({ nodes: document.getElementById('aiPanel').querySelectorAll('[data-lucide]') });
+            } else {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex', 'flex-col');
+            }
+        }
+
+        function clearAiChat() {
+            aiHistory = [];
+            document.getElementById('aiMessages').innerHTML = '';
+            appendAiMessage('assistant', 'Chat dikosongkan. Ada yang bisa aku bantu?');
+        }
+
+        function getNotesContext() {
+            if (!notes || notes.length === 0) return 'Belum ada catatan.';
+            return notes.slice(0, 40).map(n => `- ID: ${n.id} | Judul: "${n.title || '(tanpa judul)'}" | Tag: ${n.tag || '-'} | Terkunci: ${n.pin ? 'ya' : 'tidak'}`).join('\n');
+        }
+
+        function escapeAiHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function appendAiMessage(role, text, isAction = false) {
+            const container = document.getElementById('aiMessages');
+            if (!container) return;
+            const isUser = role === 'user';
+            const div = document.createElement('div');
+            div.className = `flex ${isUser ? 'justify-end' : 'justify-start'} fade-in`;
+            if (isAction) {
+                div.innerHTML = `<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-medium max-w-[90%]"><i data-lucide="check-circle" class="h-3.5 w-3.5 shrink-0"></i><span>${escapeAiHtml(text)}</span></div>`;
+            } else {
+                div.innerHTML = `<div class="max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${isUser ? 'bg-gradient-to-br from-blue-500 to-violet-600 text-white rounded-br-sm' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-bl-sm'}">${escapeAiHtml(text)}</div>`;
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            if (isAction) lucide.createIcons({ nodes: div.querySelectorAll('[data-lucide]') });
+        }
+
+        async function executeAiAction(action) {
+            try {
+                if (action.action === 'create_note') {
+                    const newNote = {
+                        title: action.title || '',
+                        text: action.text || '',
+                        tag: action.tag || '',
+                        pinned: false,
+                        pin: null,
+                        secQuestion: null,
+                        secAnswer: null,
+                        isDraft: false,
+                        createdAt: Date.now(),
+                        updatedAt: Date.now(),
+                    };
+                    const noteId = await window.saveNoteToFirestore(newNote);
+                    newNote.id = noteId;
+                    notes.unshift(newNote);
+                    saveNotes();
+                    render();
+                    appendAiMessage('assistant', `✓ Catatan "${action.title || '(tanpa judul)'}" berhasil dibuat!`, true);
+                } else if (action.action === 'update_note') {
+                    const noteId = action.noteId;
+                    const note = notes.find(n => n.id === noteId);
+                    if (!note) { appendAiMessage('assistant', '⚠ Catatan tidak ditemukan.', true); return; }
+                    if (action.title !== undefined) note.title = action.title;
+                    if (action.text !== undefined) note.text = action.text;
+                    if (action.tag !== undefined) note.tag = action.tag;
+                    note.updatedAt = Date.now();
+                    await window.saveNoteToFirestore(note);
+                    saveNotes();
+                    render();
+                    appendAiMessage('assistant', `✓ Catatan "${note.title || '(tanpa judul)'}" berhasil diupdate!`, true);
+                } else if (action.action === 'search_notes') {
+                    const q = action.query || '';
+                    if (q) { document.getElementById('searchInput').value = q; }
+                    appendAiMessage('assistant', `✓ Mencari: "${q}"`, true);
+                }
+            } catch (err) {
+                console.error('AI action error:', err);
+                appendAiMessage('assistant', '⚠ Gagal menjalankan aksi: ' + err.message, true);
+            }
+        }
+
+        async function sendAiMessage() {
+            const input = document.getElementById('aiInput');
+            const userText = input?.value?.trim();
+            if (!userText) return;
+            input.value = '';
+            input.style.height = 'auto';
+            appendAiMessage('user', userText);
+
+            aiHistory.push({ role: 'user', content: userText });
+
+            const thinking = document.getElementById('aiThinking');
+            thinking?.classList.remove('hidden');
+            document.getElementById('aiMessages').scrollTop = 999999;
+
+            const systemPrompt = `Kamu adalah AI asisten dalam aplikasi catatan bernama Nonoted. Bantu pengguna mengelola catatan mereka. Balas dalam Bahasa Indonesia.
+
+Catatan yang ada sekarang:
+${getNotesContext()}
+
+Jika pengguna minta tambah/buat catatan baru, sertakan blok JSON ini DI AKHIR responsmu:
+<<<ACTION
+{"action":"create_note","title":"Judul Catatan","text":"Isi catatan","tag":"tag_opsional"}
+ACTION>>>
+
+Jika pengguna minta update/edit catatan, gunakan noteId dari daftar di atas:
+<<<ACTION
+{"action":"update_note","noteId":"id_catatan","title":"judul baru (opsional)","text":"isi baru (opsional)"}
+ACTION>>>
+
+Jika pengguna minta cari catatan:
+<<<ACTION
+{"action":"search_notes","query":"kata kunci"}
+ACTION>>>
+
+Penting: HANYA sertakan blok <<<ACTION...ACTION>>> jika ada aksi yang perlu dilakukan. Jangan sertakan jika ini hanya percakapan biasa. Jangan tulis penjelasan tentang format JSON-nya, langsung lakukan saja.`;
+
+            try {
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'Nonoted AI'
+                    },
+                    body: JSON.stringify({
+                        model: AI_MODEL,
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            ...aiHistory.slice(-10)
+                        ]
+                    })
+                });
+                const data = await res.json();
+                const rawReply = data.choices?.[0]?.message?.content || 'Maaf, tidak ada respons dari AI.';
+
+                // Extract action block
+                const actionMatch = rawReply.match(/<<<ACTION\s*([\s\S]*?)\s*ACTION>>>/);
+                const displayText = rawReply.replace(/<<<ACTION[\s\S]*?ACTION>>>/g, '').trim();
+
+                if (displayText) appendAiMessage('assistant', displayText);
+                aiHistory.push({ role: 'assistant', content: rawReply });
+
+                if (actionMatch) {
+                    try {
+                        const action = JSON.parse(actionMatch[1].trim());
+                        await executeAiAction(action);
+                    } catch (e) {
+                        console.warn('Failed to parse AI action:', e);
+                    }
+                }
+            } catch (err) {
+                appendAiMessage('assistant', 'Gagal terhubung ke AI. Cek koneksi internet ya!');
+                console.error('AI error:', err);
+            } finally {
+                thinking?.classList.add('hidden');
+            }
+        }
+
+        // Init AI button icon
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons({ nodes: document.getElementById('btnAiToggle')?.querySelectorAll('[data-lucide]') });
+        });
+    </script>
+
 </body>
 
 </html>
